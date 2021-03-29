@@ -15,7 +15,8 @@ class blk(gr.sync_block):  # other base classes are basic_block, decim_block, in
             in_sig=[np.complex64],
             out_sig=[np.complex64]
         )
-        
+        if fd < 0.1:
+            fd = 0.1
         fs = 100.0
         N = int( sqrt( -log( 0.01,exp(1.0) ) ) / (pi*fd/fs) )
         n = range(-N, N+1)

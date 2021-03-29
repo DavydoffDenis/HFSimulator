@@ -3,7 +3,7 @@ import numpy as np
 from gnuradio import gr
 from math import log, sqrt, exp, pi
 import scipy
-from scipy.signal import lfilter, lfilter_zi
+from scipy.signal import lfilter
 
 class blk(gr.sync_block):  # other base classes are basic_block, decim_block, interp_block
 
@@ -15,7 +15,8 @@ class blk(gr.sync_block):  # other base classes are basic_block, decim_block, in
             in_sig=[np.complex64],
             out_sig=[np.complex64]
         )
-        
+        if fd < 0.1:
+            fd = 0.1
         fs = 100.0
         N = int( sqrt( -log( 0.01,exp(1.0) ) ) / (pi*fd/fs) )
         n = range(-N, N+1)

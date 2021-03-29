@@ -16,6 +16,8 @@ import functools
 import epoll_server
 import sys
 import csv
+import os.path
+from contextlib import redirect_stdout
 
 class UserInterface(QMainWindow):
     '''
@@ -86,13 +88,13 @@ class UserInterface(QMainWindow):
         lbl15_freq_adapt_mode = QLabel("Адрес модема подкл. к первому вх. зв. карты:")        
         lbl16_freq_adapt_mode = QLabel("Адрес модема подкл. ко второму вх. зв. карты:")
         lbl17_freq_adapt_mode = QLabel("Набор каналов:")
-        self.lbl18_freq_adapt_mode = QLabel("params.csv")
-        self.channels_csv_filename = "params.csv"
+        self.lbl18_freq_adapt_mode = QLabel("parameters_for_sim.csv")
+        self.channels_csv_filename = "parameters_for_sim.csv"
         
         lbl17_about = QLabel()
         pixmap = QPixmap("polet.png")
         lbl17_about.setPixmap(pixmap)
-        lbl18_about = QLabel("Версия: 1.69")
+        lbl18_about = QLabel("Версия: 1.71")
         lbl19_about = QLabel("Авторы проекта: Алексей Львов, Денис Давыдов")
         lbl20_about = QLabel('АО "НПП "Полет", 2019-2021 г.')
         
@@ -102,6 +104,9 @@ class UserInterface(QMainWindow):
         
         sys.stdout = OutputLogger(emit_write = self.append_log)
         sys.stderr = OutputLogger(emit_write = self.append_log)
+#         stdout_fd = sys.stdout.fileno()
+#         f = open('output.txt', 'w')        
+#         redirect_stdout(f)
         
         self.dbl1_beams = QDoubleSpinBox()    # Амплитуда первого луча
         self.dbl1_beams.setMaximum(1.0)
@@ -482,6 +487,7 @@ class UserInterface(QMainWindow):
         
         self.sim_handler.on_off_out1 = self.dbl7_snr.value()
         self.sim_handler.on_off_out2 = self.dbl8_snr.value()
+        self.sim_handler.en_silence_noise = [0,0]
         
         self.sim_handler.start_sim()  # Запуск симуляции канала
         
@@ -526,6 +532,17 @@ class UserInterface(QMainWindow):
         self.adapt_mode.port = self.int3_serv_port.value()
         self.adapt_mode.channels_csv_filename = self.channels_csv_filename
         
+    def check_if_csv_file_with_channels_exists(self):
+        try: 
+            if not os.path.exists(self.channels_csv_filename):
+                raise FileNotFoundError
+            else:
+                return True
+        except FileNotFoundError as err:
+            print(f"Файл {self.channels_csv_filename} не существует, пожалуйста выберите существующий файл с параметрами каналов\n")
+            return False
+            pass
+        
     def start_stop_button_handler(self):
         if self.gr_box3_fixed_freq_mode.isChecked():  # Если выбран режим фиксированной частоты
             if self.sim_handler.flow_graph_is_running:
@@ -536,6 +553,8 @@ class UserInterface(QMainWindow):
                 self.gr_box3_fixed_freq_mode.setEnabled(True)  # Разблокировывает редактироватие параметров после остановки симуляции
                 self.gr_box4_freq_adapt_mode.setEnabled(True)
             elif not self.sim_handler.flow_graph_is_running:
+                if not self.check_if_csv_file_with_channels_exists():
+                    return
                 self.start_sim_in_fixed_mode()
                 print("Поток выполнения запущен в режиме фиксированной частоты\n")
                 self.statusBar().showMessage("Поток выполнения запущен в режиме фиксированной частоты.")
@@ -559,6 +578,8 @@ class UserInterface(QMainWindow):
                     self.gr_box3_fixed_freq_mode.setEnabled(True)  # Разблокировывает редактироватие параметров после остановки симуляции
                     self.gr_box4_freq_adapt_mode.setEnabled(True)
             else:
+                if not self.check_if_csv_file_with_channels_exists():
+                    return
                 self.setup_sim_in_adapt_mode()
                 self.adapt_mode.start()
         

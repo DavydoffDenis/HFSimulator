@@ -9,6 +9,7 @@ import csv
 from threading import Thread
 import select
 import time
+import datetime
 
 class ServerHandler(Thread):
     def __init__(self, sim_handler, host = "192.168.1.2", port = 8080, channels_csv_filename = "params.csv"):
@@ -29,6 +30,9 @@ class ServerHandler(Thread):
         self.data_to_read = None
         self.data_to_send = None
         
+        self.t1 = None  # Время включения канала
+        self.t2 = None  # Время выключения канала
+        
         self.conn_map = dict()  # Служит для связи создаваемых объектов соединений с файловыми дескрипторами (числами), адресами модемов и каналами на прием и передачу
         
     def start_sim(self, channel_num):  
@@ -39,8 +43,9 @@ class ServerHandler(Thread):
             if i == channel_num + 1:
                 floats = map(float, r)
                 self.ampl1, self.ampl2, self.tau, self.dop_shift, self.dop_fd, self.snr = floats
-        print(f"Параметры симуляции:\n a1 - {self.ampl1}, a2 - {self.ampl2}, tau - {self.tau}, dop_shift - {self.dop_shift}, dop_fd - {self.dop_fd}, snr - {self.snr}")
-        print("Процесс симуляции запущен...\n")
+        if any(self.ampl_mult):
+            print(f"Параметры симуляции:\n a1 - {self.ampl1}, a2 - {self.ampl2}, tau - {self.tau}, dop_shift - {self.dop_shift}, dop_fd - {self.dop_fd}, snr - {self.snr}")
+            print("Процесс симуляции запущен...\n")
         if self.sim_handler.flow_graph_is_running == True:
             self.sim_handler.stop_sim()  # Останавливаем симуляцию для переконфигурирования симулятора
         self.sim_handler.ampl1 = self.ampl1  # Амплитуда первого луча
@@ -51,9 +56,16 @@ class ServerHandler(Thread):
         self.sim_handler.snr = self.snr  # Отношение сигнал-шум
         self.sim_handler.on_off_out1 = self.ampl_mult[0]
         self.sim_handler.on_off_out2 = self.ampl_mult[1]
+        self.sim_handler.en_silence_noise = self.en_noise
         self.sim_handler.start_sim()  # Запуск симуляции канала
         
     def read_data_handler(self, fileno):
+        if self.t1:
+            self.t2 = datetime.datetime.now()
+            dt = self.t2 - self.t1
+            self.t1 = 0
+            self.t2 = 0
+            print(f"Время до перестройки {dt.seconds}.{dt.microseconds} c.\n")
         f = open('address.cfg', 'r')
         addr_1_cfg, addr_2_cfg = map(int, f.read().split())
         
@@ -92,52 +104,61 @@ class ServerHandler(Thread):
              self.modem_2_TX_ch_num == self.modem_1_RX_ch_num:
             # оба слышат друг друга симметричный канал
                 channel_number = self.modem_1_TX_ch_num
-                ampl_mult = [1., 1.]
+                self.ampl_mult = [1, 1]
+                self.en_noise = [0, 0]
                 print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
                 print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
                 print(f"Выбраный канал: {channel_number}")
                 print(f"Комбинация номеров каналов: tx1 - {self.modem_1_TX_ch_num}, rx1 - {self.modem_1_RX_ch_num}, tx2 - {self.modem_2_TX_ch_num}, rx2 - {self.modem_2_RX_ch_num}")
-                self.ampl_mult = ampl_mult  
                 self.start_sim(channel_number)
+                self.t1 = datetime.datetime.now()
                 self.data_to_send = self.data_to_read
                 self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
 #                 conn.send(self.data_to_read)
             elif self.modem_1_TX_ch_num == self.modem_2_RX_ch_num:
             # втрой слышит первого, первый не слышит второй
                 channel_number = self.modem_1_TX_ch_num
-                ampl_mult = [1., 0.]
+                self.ampl_mult = [1, 0]
+                self.en_noise = [0, 1]
                 print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
                 print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
                 print(f"Выбраный канал: {channel_number}")
                 print(f"Комбинация номеров каналов: tx1 - {self.modem_1_TX_ch_num}, rx1 - {self.modem_1_RX_ch_num}, tx2 - {self.modem_2_TX_ch_num}, rx2 - {self.modem_2_RX_ch_num}")
-                self.ampl_mult = ampl_mult  
                 self.start_sim(channel_number)
+                self.t1 = datetime.datetime.now()
                 self.data_to_send = self.data_to_read
                 self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
 #                 conn.send(self.data_to_read)
             elif self.modem_2_TX_ch_num == self.modem_1_RX_ch_num:
             # первый слышит второй, второй не слышит первого
                 channel_number = self.modem_2_TX_ch_num
-                ampl_mult = [0., 1.]
+                self.ampl_mult = [0, 1]
+                self.en_noise = [1, 0]
                 print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
                 print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
                 print(f"Выбраный канал: {channel_number}")
                 print(f"Комбинация номеров каналов: tx1 - {self.modem_1_TX_ch_num}, rx1 - {self.modem_1_RX_ch_num}, tx2 - {self.modem_2_TX_ch_num}, rx2 - {self.modem_2_RX_ch_num}")
-                self.ampl_mult = ampl_mult  
                 self.start_sim(channel_number)
+                self.t1 = datetime.datetime.now()
                 self.data_to_send = self.data_to_read
                 self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
 #                 conn.send(self.data_to_read)
             else:
+                # никто никого не слышит
+                channel_number = 1
+                self.ampl_mult = [0, 0]
+                self.en_noise = [1, 1]
                 print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
                 print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
                 print(f"Недопустимая комбинация номеров каналов: tx1 - {self.modem_1_TX_ch_num}, rx1 - {self.modem_1_RX_ch_num}, tx2 - {self.modem_2_TX_ch_num}, rx2 - {self.modem_2_RX_ch_num}")
                 print("Процесс симуляции остановлен!\n")
+                self.start_sim(channel_number)
+                self.t1 = datetime.datetime.now()
                 self.data_to_send = self.data_to_read
                 self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
 #                 conn.send(self.data_to_read)
-                if self.sim_handler.flow_graph_is_running == True:
-                    self.sim_handler.stop_sim()  # Останавливаем симуляцию для переконфигурирования симулятора
+#                 if self.sim_handler.flow_graph_is_running == True:
+#                     self.sim_handler.stop_sim()  # Останавливаем симуляцию для переконфигурирования симулятора
         
     def run(self):
         try:
