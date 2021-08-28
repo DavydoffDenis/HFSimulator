@@ -1,7 +1,6 @@
 options:
   parameters:
     author: Davydov Denis
-    catch_exceptions: 'True'
     category: '[GRC Hier Blocks]'
     cmake_opt: ''
     comment: ''
@@ -23,6 +22,7 @@ options:
     sizing_mode: fixed
     thread_safe_setters: ''
     title: HF channel simulation
+    window_size: ''
   states:
     bus_sink: false
     bus_source: false
@@ -41,7 +41,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [872, 16.0]
+    coordinate: [432, 12.0]
     rotation: 0
     state: enabled
 - name: doppler_ir
@@ -87,7 +87,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [624, 16.0]
+    coordinate: [352, 76.0]
     rotation: 0
     state: enabled
 - name: en_noise
@@ -111,7 +111,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [525, 121]
+    coordinate: [280, 76.0]
     rotation: 0
     state: true
 - name: freqShift
@@ -123,7 +123,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1080, 80.0]
+    coordinate: [528, 76.0]
     rotation: 0
     state: enabled
 - name: kN
@@ -135,7 +135,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [448, 16.0]
+    coordinate: [352, 12.0]
     rotation: 0
     state: enabled
 - name: noSpread
@@ -147,7 +147,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [240, 96.0]
+    coordinate: [192, 76.0]
     rotation: 0
     state: enabled
 - name: outSigRMSVec
@@ -175,7 +175,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [216, 18]
+    coordinate: [192, 12.0]
     rotation: 0
     state: enabled
 - name: snr
@@ -187,7 +187,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [320, 18]
+    coordinate: [280, 12.0]
     rotation: 0
     state: enabled
 - name: snrVecOut
@@ -203,7 +203,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [3256, 340.0]
+    coordinate: [2552, 284.0]
     rotation: 0
     state: enabled
 - name: tau
@@ -215,7 +215,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1192, 8.0]
+    coordinate: [608, 76.0]
     rotation: 0
     state: enabled
 - name: tau_a
@@ -227,7 +227,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1312, 16.0]
+    coordinate: [584, 12.0]
     rotation: 0
     state: enabled
 - name: vol
@@ -239,7 +239,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1436, 22]
+    coordinate: [664, 12.0]
     rotation: 0
     state: enabled
 - name: analog_const_source_x_0
@@ -290,7 +290,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [708, 248]
+    coordinate: [704, 284.0]
     rotation: 0
     state: enabled
 - name: analog_const_source_x_1_0
@@ -307,7 +307,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [710, 451]
+    coordinate: [712, 484.0]
     rotation: 0
     state: enabled
 - name: analog_const_source_x_1_0_0
@@ -1740,7 +1740,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2840, 240.0]
+    coordinate: [2344, 208.0]
     rotation: 0
     state: enabled
 - name: blocks_streams_to_vector_0_0
@@ -1955,7 +1955,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1072, 24.0]
+    coordinate: [744, 12.0]
     rotation: 0
     state: enabled
 - name: low_pass_filter_0
@@ -2027,7 +2027,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [697, 103]
+    coordinate: [704, 140.0]
     rotation: 0
     state: enabled
 - name: low_pass_filter_1_0
@@ -2051,7 +2051,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [698, 299]
+    coordinate: [704, 332.0]
     rotation: 0
     state: enabled
 - name: low_pass_filter_1_0_0
@@ -2710,7 +2710,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1849, 709]
+    coordinate: [1696, 636.0]
     rotation: 0
     state: disabled
 - name: single_pole_iir_filter_xx_0
@@ -2797,7 +2797,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [3256, 256.0]
+    coordinate: [2544, 220.0]
     rotation: 0
     state: enabled
 

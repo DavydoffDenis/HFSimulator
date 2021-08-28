@@ -11,7 +11,10 @@ from PyQt5.QtWidgets import (QWidget, QMainWindow, QTextEdit, QApplication,
 from PyQt5.QtGui import QIcon, QTextCursor, QPalette, QBrush, QPixmap
 from PyQt5.QtCore import Qt, QTimer, QObject, pyqtSignal
 
-import simulation
+# import simulation
+# import simulation_test
+import ch1_simulation_test
+import ch2_simulation_test
 import functools
 import epoll_server
 import sys
@@ -26,8 +29,11 @@ class UserInterface(QMainWindow):
     
     def __init__(self):
         super(QMainWindow, self).__init__()
-        self.sim_t = simulation.simulation()  # Создаем экземпляр класса потока выполнения симуляции канала
-        self.sim_handler = parameters_handler.Parameters(self.sim_t)  # Создаем экземпляр класса обслуживающего поток симуляции  
+        # self.sim_t = simulation.simulation()  # Создаем экземпляр класса потока выполнения симуляции канала
+        # self.sim_t = simulation_test.simulation_test()  # Создаем экземпляр класса потока выполнения симуляции канала для тестирования без внешней звуковой карты
+        self.ch1_sim_t = ch1_simulation_test.ch1_simulation_test()
+        self.ch2_sim_t = ch2_simulation_test.ch2_simulation_test()
+        self.sim_handler = parameters_handler.Parameters(self.ch1_sim_t, self.ch2_sim_t)  # Создаем экземпляр класса обслуживающего поток симуляции  
 #         self.adapt_mode = AsyncServer.ServerThread(self.sim_handler, self.tcp_host, self.tcp_port)  # Создаем экземпляр класса сервера для режима адапт. частоты
         self.adapt_mode = epoll_server.ServerHandler(self.sim_handler)
         
@@ -422,29 +428,41 @@ class UserInterface(QMainWindow):
     def get_parameters_from_flow_graph(self, obj):  # Передаём в выбранные параметры значения из потока симуляции
         if obj.flow_graph_is_running == True:
             #  Передаём в выбранные параметры значения из потока симуляции
-    #         self.lbl8_beams.setText(str(round(self.sim_handler.get_ampl()[0][0], 2)))  # Амплитуда первого луча
-            self.lbl8_beams.setText(str(round(obj.sim_t.get_ampl()[0][0], 2)))  # Амплитуда первого луча
+            # self.lbl8_beams.setText(str(round(self.sim_handler.get_ampl()[0][0], 2)))  # Амплитуда первого луча
+            # self.lbl8_beams.setText(str(round(obj.sim_t.get_ampl()[0][0], 2)))  # Амплитуда первого луча
+            self.lbl8_beams.setText(str(round(obj.ch1_sim_t.get_ampl()[0][0], 2)))  # Амплитуда первого луча
+
+            # self.lbl9_beams.setText(str(round(self.sim_handler.get_ampl()[0][1], 2)))  # Амплитуда второго луча
+            # self.lbl9_beams.setText(str(round(obj.sim_t.get_ampl()[0][1], 2)))  # Амплитуда второго луча
+            self.lbl9_beams.setText(str(round(obj.ch1_sim_t.get_ampl()[0][1], 2)))  # Амплитуда второго луча
+
+            # self.lbl11_beams.setText(str(self.sim_handler.get_tau()*1000))  # Задержка второго луча относительно первого
+            # self.lbl11_beams.setText(str(obj.sim_t.get_tau()*1000))  # Задержка второго луча относительно первого
+            self.lbl11_beams.setText(str(obj.ch1_sim_t.get_tau()*1000))  # Задержка второго луча относительно первого
             
-    #         self.lbl9_beams.setText(str(round(self.sim_handler.get_ampl()[0][1], 2)))  # Амплитуда второго луча
-            self.lbl9_beams.setText(str(round(obj.sim_t.get_ampl()[0][1], 2)))  # Амплитуда второго луча
-            
-    #         self.lbl11_beams.setText(str(self.sim_handler.get_tau()*1000))  # Задержка второго луча относительно первого
-            self.lbl11_beams.setText(str(obj.sim_t.get_tau()*1000))  # Задержка второго луча относительно первого
-            
-    #         self.lbl7_doppler.setText(str(round(self.sim_handler.get_dop_freq_shift(), 2)))  # Доплеровский сдвиг частоты
-            self.lbl7_doppler.setText(str(round(obj.sim_t.get_freqShift(), 2)))  # Доплеровский сдвиг частоты
+            # self.lbl7_doppler.setText(str(round(self.sim_handler.get_dop_freq_shift(), 2)))  # Доплеровский сдвиг частоты
+            # self.lbl7_doppler.setText(str(round(obj.sim_t.get_freqShift(), 2)))  # Доплеровский сдвиг частоты
+            self.lbl7_doppler.setText(str(round(obj.ch1_sim_t.get_freqShift(), 2)))  # Доплеровский сдвиг частоты
             
             # Передаём в выбранные параметры установленные значения доплеровского уширения и отношения сигнал-шум
-            self.lbl8_doppler.setText(str(round(obj.sim_t.get_fd(), 2)))  # Доплеровское уширение (рассеивание)
+            # self.lbl8_doppler.setText(str(round(obj.sim_t.get_fd(), 2)))  # Доплеровское уширение (рассеивание)
+            # self.lbl4_snr.setText(str(round(obj.snr, 2)))  # Отношение сигнал-шум
+            self.lbl8_doppler.setText(str(round(obj.ch1_sim_t.get_fd(), 2)))  # Доплеровское уширение (рассеивание)
             self.lbl4_snr.setText(str(round(obj.snr, 2)))  # Отношение сигнал-шум
-            
+
             #  Извлекаем данные, которые кладутся в измеренные параметры
-            snr = obj.sim_t.get_snrVecOut()
-            rms1 = round(obj.sim_t.get_outSigRMSVec()[0], 2)
-            rms2 = round(obj.sim_t.get_outSigRMSVec()[1], 2)
+            # snr = obj.sim_t.get_snrVecOut()
+            # rms1 = round(obj.sim_t.get_outSigRMSVec()[0], 2)
+            # rms2 = round(obj.sim_t.get_outSigRMSVec()[1], 2)
+            snr1 = round(obj.ch1_sim_t.get_snr_out_func_block(), 2)
+            snr2 = round(obj.ch2_sim_t.get_snr_out_func_block(), 2)
+            rms1 = round(obj.ch1_sim_t.get_out_rms_func_block, 2)
+            rms2 = round(obj.ch2_sim_t.get_out_rms_func_block, 2)
             
-            self.lbl7_snr.setText(str(round(snr[2], 2)))
-            self.lbl7_1_snr.setText(str(round(snr[3], 2)))
+            # self.lbl7_snr.setText(str(round(snr[2], 2)))
+            # self.lbl7_1_snr.setText(str(round(snr[3], 2)))
+            self.lbl7_snr.setText(str(snr1))
+            self.lbl7_1_snr.setText(str(snr2))
             self.lbl2_rms.setText(str(rms1))
             self.lbl4_rms.setText(str(rms2))
             

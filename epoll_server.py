@@ -19,10 +19,15 @@ class ServerHandler(Thread):
         self.port = port
         self.channels_csv_filename = channels_csv_filename
         
-        self.modem_1_RX_ch_num = None  # Номер приемного канала модема подключенного к первому входу звуковой карты
-        self.modem_1_TX_ch_num = None  # Номер передающего канала модема подключенного к первому входу звуковой карты
-        self.modem_2_RX_ch_num = None  # Номер приемного канала модема подключенного ко второму входу звуковой карты
-        self.modem_2_TX_ch_num = None  # Номер передающего канала модема подключенного ко второму входу звуковой карты
+        self.modem_1_RX_ch_num = -1  # Старый номер приемного канала модема подключенного к первому входу звуковой карты
+        self.modem_1_TX_ch_num = -1  # Старый номер передающего канала модема подключенного к первому входу звуковой карты
+        self.modem_2_RX_ch_num = -1  # Старый номер приемного канала модема подключенного ко второму входу звуковой карты
+        self.modem_2_TX_ch_num = -1  # Старый номер передающего канала модема подключенного ко второму входу звуковой карты
+        
+        self.new_modem_1_RX_ch_num = None  # Новый номер приемного канала модема подключенного к первому входу звуковой карты
+        self.new_modem_1_TX_ch_num = None  # Новый номер передающего канала модема подключенного к первому входу звуковой карты
+        self.new_modem_2_RX_ch_num = None  # Новый номер приемного канала модема подключенного ко второму входу звуковой карты
+        self.new_modem_2_TX_ch_num = None  # Новый номер передающего канала модема подключенного ко второму входу звуковой карты
         
         self.server_is_running = None  
         self.stop_server_flag = None
@@ -71,18 +76,18 @@ class ServerHandler(Thread):
         
         modem_address = self.data_to_read[0]
         if modem_address == addr_1_cfg:
-            self.modem_1_RX_ch_num = self.data_to_read[2]
-            self.modem_1_TX_ch_num = self.data_to_read[1]
+            self.new_modem_1_RX_ch_num = self.data_to_read[2]
+            self.new_modem_1_TX_ch_num = self.data_to_read[1]
         elif modem_address == addr_2_cfg:
-            self.modem_2_RX_ch_num = self.data_to_read[2]
-            self.modem_2_TX_ch_num = self.data_to_read[1]
+            self.new_modem_2_RX_ch_num = self.data_to_read[2]
+            self.new_modem_2_TX_ch_num = self.data_to_read[1]
         else:
             print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
             print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
             print(f"Адрес модема: {modem_address} не допустим, ожидание...\n")
             return 
 
-        if None in [self.modem_1_TX_ch_num, self.modem_1_RX_ch_num]:
+        if None in [self.new_modem_1_TX_ch_num, self.new_modem_1_RX_ch_num]:
             print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
             print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
             print(f'Не получены номера каналов первого модема, ожидание...\ntx2 - {self.modem_2_TX_ch_num}, rx2 - {self.modem_2_RX_ch_num}\n')
@@ -91,7 +96,7 @@ class ServerHandler(Thread):
             self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
             return
 #             conn.send(self.data_to_read)
-        elif None in [self.modem_2_TX_ch_num, self.modem_2_RX_ch_num]:
+        elif None in [self.new_modem_2_TX_ch_num, self.new_modem_2_RX_ch_num]:
             print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
             print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
             print(f'Не получены номера каналов второго модема, ожидание...\ntx1 - {self.modem_1_TX_ch_num}, rx1 - {self.modem_1_RX_ch_num}\n')
@@ -100,9 +105,30 @@ class ServerHandler(Thread):
             self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
             return
         else:
-            if self.modem_1_TX_ch_num == self.modem_2_RX_ch_num ==\
+            if self.new_modem_1_TX_ch_num == self.new_modem_2_RX_ch_num ==\
+             self.new_modem_2_TX_ch_num == self.new_modem_1_RX_ch_num ==\
+             self.modem_1_TX_ch_num == self.modem_2_RX_ch_num ==\
              self.modem_2_TX_ch_num == self.modem_1_RX_ch_num:
-            # оба слышат друг друга симметричный канал
+            # Повторное включение того же канала,
+            # оба слышат друг друга - симметричный канал.
+                channel_number = self.modem_1_TX_ch_num
+                print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
+                print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
+                print(f"Выбраный канал: {channel_number} совпадает с действующим, дополнительных действий не требуется")
+                print(f"Комбинация номеров каналов: tx1 - {self.modem_1_TX_ch_num}, rx1 - {self.modem_1_RX_ch_num}, tx2 - {self.modem_2_TX_ch_num}, rx2 - {self.modem_2_RX_ch_num}")
+                print("Процесс симуляции продолжается со старыми значениями параметров канала")
+                self.t1 = datetime.datetime.now()
+                self.data_to_send = self.data_to_read
+                self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
+
+            elif self.modem_1_TX_ch_num == self.modem_2_RX_ch_num ==\
+             self.modem_2_TX_ch_num == self.modem_1_RX_ch_num:
+            # Включение нового частотного канала,
+            # оба слышат друг друга - симметричный канал.
+                self.modem_1_RX_ch_num = self.new_modem_1_RX_ch_num
+                self.modem_1_TX_ch_num = self.new_modem_1_TX_ch_num
+                self.modem_2_RX_ch_num = self.new_modem_2_RX_ch_num
+                self.modem_2_TX_ch_num = self.new_modem_2_TX_ch_num
                 channel_number = self.modem_1_TX_ch_num
                 self.ampl_mult = [1, 1]
                 self.en_noise = [0, 0]

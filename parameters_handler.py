@@ -12,8 +12,9 @@ class Parameters:
     Запускает и останавливает поток симуляции канала
     '''
 
-    def __init__(self, sim_t): 
-        self.sim_t = sim_t     
+    def __init__(self, ch1_sim_t, ch2_sim_t): 
+        self.ch1_sim_t = ch1_sim_t     
+        self.ch2_sim_t = ch2_sim_t
         self.ampl1 = None  # Амплитуда первого луча
         self.ampl2 = None  # Амплитуда второго луча
         self.tau = None  # Задержка второго луча относительно первого
