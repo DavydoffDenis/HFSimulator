@@ -7,7 +7,7 @@
 # GNU Radio Python Flow Graph
 # Title: HF channel simulation
 # Author: Davydov Denis
-# GNU Radio version: 3.8.2.0
+# GNU Radio version: 3.9.2.0
 
 from gnuradio import analog
 from gnuradio import audio
@@ -15,32 +15,35 @@ from gnuradio import blocks
 from gnuradio import filter
 from gnuradio.filter import firdes
 from gnuradio import gr
+from gnuradio.fft import window
 import sys
 import signal
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
 from math import sqrt, pi
-import epy_block_0
-import epy_block_0_0
-import epy_block_0_0_0
-import epy_block_0_0_0_0
+import simulation_for_serg_epy_block_0 as epy_block_0  # embedded python block
+import simulation_for_serg_epy_block_0_0 as epy_block_0_0  # embedded python block
+import simulation_for_serg_epy_block_0_0_0 as epy_block_0_0_0  # embedded python block
+import simulation_for_serg_epy_block_0_0_0_0 as epy_block_0_0_0_0  # embedded python block
 import time
 import threading
 
 
-class simulation(gr.top_block):
+
+
+class simulation_for_serg(gr.top_block):
 
     def __init__(self):
-        gr.top_block.__init__(self, "HF channel simulation")
+        gr.top_block.__init__(self, "HF channel simulation", catch_exceptions=True)
 
         ##################################################
         # Variables
         ##################################################
-        self.snr = snr = 10
+        self.snr = snr = 40
         self.vol = vol = [1,1]
         self.tau_a = tau_a = 1/100.
-        self.tau = tau = 0.002
+        self.tau = tau = 0.1
         self.snrVecOut = snrVecOut = ([0]*3)
         self.samp_rate = samp_rate = 48000
         self.outSigRMSVec = outSigRMSVec = ([0]*2)
@@ -58,35 +61,39 @@ class simulation(gr.top_block):
         self.snrOut = blocks.probe_signal_vf(4)
         self.outSigRMS = blocks.probe_signal_vf(2)
         def _snrVecOut_probe():
-            while True:
+          while True:
 
-                val = self.snrOut.level()
-                try:
-                    self.set_snrVecOut(val)
-                except AttributeError:
-                    pass
-                time.sleep(1.0 / (10))
+            val = self.snrOut.level()
+            try:
+              try:
+                self.doc.add_next_tick_callback(functools.partial(self.set_snrVecOut,val))
+              except AttributeError:
+                self.set_snrVecOut(val)
+            except AttributeError:
+              pass
+            time.sleep(1.0 / (10))
         _snrVecOut_thread = threading.Thread(target=_snrVecOut_probe)
         _snrVecOut_thread.daemon = True
         _snrVecOut_thread.start()
-
         self.single_pole_iir_filter_xx_0_1 = filter.single_pole_iir_filter_ff(2*pi*tau_a/samp_rate, 1)
         self.single_pole_iir_filter_xx_0_0_0 = filter.single_pole_iir_filter_ff(2*pi*tau_a/samp_rate, 1)
         self.single_pole_iir_filter_xx_0_0 = filter.single_pole_iir_filter_ff(2*pi*tau_a/samp_rate, 1)
         self.single_pole_iir_filter_xx_0 = filter.single_pole_iir_filter_ff(2*pi*tau_a/samp_rate, 1)
         def _outSigRMSVec_probe():
-            while True:
+          while True:
 
-                val = self.outSigRMS.level()
-                try:
-                    self.set_outSigRMSVec(val)
-                except AttributeError:
-                    pass
-                time.sleep(1.0 / (10))
+            val = self.outSigRMS.level()
+            try:
+              try:
+                self.doc.add_next_tick_callback(functools.partial(self.set_outSigRMSVec,val))
+              except AttributeError:
+                self.set_outSigRMSVec(val)
+            except AttributeError:
+              pass
+            time.sleep(1.0 / (10))
         _outSigRMSVec_thread = threading.Thread(target=_outSigRMSVec_probe)
         _outSigRMSVec_thread.daemon = True
         _outSigRMSVec_thread.start()
-
         self.low_pass_filter_2_0 = filter.fir_filter_ccf(
             1,
             firdes.low_pass(
@@ -94,7 +101,7 @@ class simulation(gr.top_block):
                 samp_rate,
                 1550,
                 100,
-                firdes.WIN_HAMMING,
+                window.WIN_HAMMING,
                 6.76))
         self.low_pass_filter_2 = filter.fir_filter_ccf(
             1,
@@ -103,7 +110,7 @@ class simulation(gr.top_block):
                 samp_rate,
                 1550,
                 100,
-                firdes.WIN_HAMMING,
+                window.WIN_HAMMING,
                 6.76))
         self.low_pass_filter_1_1 = filter.interp_fir_filter_ccf(
             int(samp_rate/100),
@@ -112,7 +119,7 @@ class simulation(gr.top_block):
                 samp_rate,
                 50,
                 25,
-                firdes.WIN_HAMMING,
+                window.WIN_HAMMING,
                 6.76))
         self.low_pass_filter_1_0_0 = filter.interp_fir_filter_ccf(
             int(samp_rate/100),
@@ -121,7 +128,7 @@ class simulation(gr.top_block):
                 samp_rate,
                 50,
                 25,
-                firdes.WIN_HAMMING,
+                window.WIN_HAMMING,
                 6.76))
         self.low_pass_filter_1_0 = filter.interp_fir_filter_ccf(
             int(samp_rate/100),
@@ -130,7 +137,7 @@ class simulation(gr.top_block):
                 samp_rate,
                 50,
                 25,
-                firdes.WIN_HAMMING,
+                window.WIN_HAMMING,
                 6.76))
         self.low_pass_filter_1 = filter.interp_fir_filter_ccf(
             int(samp_rate/100),
@@ -139,7 +146,7 @@ class simulation(gr.top_block):
                 samp_rate,
                 50,
                 25,
-                firdes.WIN_HAMMING,
+                window.WIN_HAMMING,
                 6.76))
         self.low_pass_filter_0_0 = filter.fir_filter_ccf(
             1,
@@ -148,7 +155,7 @@ class simulation(gr.top_block):
                 samp_rate,
                 1750+100,
                 600,
-                firdes.WIN_HAMMING,
+                window.WIN_HAMMING,
                 6.76))
         self.low_pass_filter_0 = filter.fir_filter_ccf(
             1,
@@ -157,7 +164,7 @@ class simulation(gr.top_block):
                 samp_rate,
                 1750+100,
                 600,
-                firdes.WIN_HAMMING,
+                window.WIN_HAMMING,
                 6.76))
         self.epy_block_0_0_0_0 = epy_block_0_0_0_0.blk(fd=fd)
         self.epy_block_0_0_0 = epy_block_0_0_0.blk(fd=fd)
@@ -177,8 +184,6 @@ class simulation(gr.top_block):
         self.blocks_rms_xx_0_0_0 = blocks.rms_ff(2*pi*tau_a*10/samp_rate)
         self.blocks_rms_xx_0_0 = blocks.rms_ff(2*pi*tau_a*10/samp_rate)
         self.blocks_rms_xx_0 = blocks.rms_cf(2*pi*tau_a*100/samp_rate)
-        self.blocks_null_source_0 = blocks.null_source(gr.sizeof_float*1)
-        self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_float*1)
         self.blocks_nlog10_ff_0_0 = blocks.nlog10_ff(10, 1, 0)
         self.blocks_nlog10_ff_0 = blocks.nlog10_ff(10, 1, 0)
         self.blocks_multiply_xx_1_0 = blocks.multiply_vcc(1)
@@ -193,7 +198,7 @@ class simulation(gr.top_block):
         self.blocks_multiply_xx_0_0_0 = blocks.multiply_vcc(1)
         self.blocks_multiply_xx_0_0 = blocks.multiply_vcc(1)
         self.blocks_multiply_xx_0 = blocks.multiply_vcc(1)
-        self.blocks_multiply_const_vxx_3_0 = blocks.multiply_const_ff(en_noise[0])
+        self.blocks_multiply_const_vxx_3_0 = blocks.multiply_const_ff(en_noise[1])
         self.blocks_multiply_const_vxx_3 = blocks.multiply_const_ff(en_noise[0])
         self.blocks_multiply_const_vxx_2_0 = blocks.multiply_const_cc(vol[1])
         self.blocks_multiply_const_vxx_2 = blocks.multiply_const_cc(vol[0])
@@ -221,8 +226,8 @@ class simulation(gr.top_block):
         self.blocks_add_xx_0_0_0 = blocks.add_vcc(1)
         self.blocks_add_xx_0_0 = blocks.add_vcc(1)
         self.blocks_add_xx_0 = blocks.add_vcc(1)
-        self.audio_source_0 = audio.source(samp_rate, 'hw:CARD=Rubix44,DEV=0', False)
-        self.audio_sink_0 = audio.sink(samp_rate, 'hw:CARD=Rubix44,DEV=0', False)
+        self.audio_source_2 = audio.source(samp_rate, '', True)
+        self.audio_sink_1 = audio.sink(samp_rate, '', True)
         self.analog_sig_source_x_2_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, 1850, 1, 0, 0)
         self.analog_sig_source_x_2 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, 1850, 1, 0, 0)
         self.analog_sig_source_x_1_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, freqShift, 1, 0, 0)
@@ -233,11 +238,11 @@ class simulation(gr.top_block):
         self.analog_sig_source_x_0_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, -1850, 1, 0, 0)
         self.analog_noise_source_x_1_0 = analog.noise_source_c(analog.GR_GAUSSIAN, 1e-0*kN, 13)
         self.analog_noise_source_x_1 = analog.noise_source_c(analog.GR_GAUSSIAN, 1e-0*kN, 3)
-        self.analog_fastnoise_source_x_3_0 = analog.fastnoise_source_c(analog.GR_GAUSSIAN, 1, 11, 8192)
-        self.analog_fastnoise_source_x_3 = analog.fastnoise_source_c(analog.GR_GAUSSIAN, 1, 1, 8192)
-        self.analog_fastnoise_source_x_2_0 = analog.fastnoise_source_c(analog.GR_GAUSSIAN, 1, 10, 8192)
-        self.analog_fastnoise_source_x_2 = analog.fastnoise_source_c(analog.GR_GAUSSIAN, 1, 0, 8192)
-        self.analog_fastnoise_source_x_1 = analog.fastnoise_source_f(analog.GR_GAUSSIAN, 0.1, 0, 8192)
+        self.analog_fastnoise_source_x_4 = analog.fastnoise_source_c(analog.GR_GAUSSIAN, 1, 11, 8192)
+        self.analog_fastnoise_source_x_3 = analog.fastnoise_source_c(analog.GR_GAUSSIAN, 1, 10, 8192)
+        self.analog_fastnoise_source_x_2 = analog.fastnoise_source_c(analog.GR_GAUSSIAN, 1, 1, 8192)
+        self.analog_fastnoise_source_x_1 = analog.fastnoise_source_c(analog.GR_GAUSSIAN, 1, 0, 8192)
+        self.analog_fastnoise_source_x_0 = analog.fastnoise_source_f(analog.GR_GAUSSIAN, 0.3, 0, 8192)
         self.analog_const_source_x_2_0 = analog.sig_source_f(0, analog.GR_CONST_WAVE, 0, 0, 0)
         self.analog_const_source_x_2 = analog.sig_source_f(0, analog.GR_CONST_WAVE, 0, 0, 0)
         self.analog_const_source_x_1_1 = analog.sig_source_c(0, analog.GR_CONST_WAVE, 0, 0, ampl[1][0])
@@ -260,12 +265,12 @@ class simulation(gr.top_block):
         self.connect((self.analog_const_source_x_1_1, 0), (self.blocks_selector_0_1, 1))
         self.connect((self.analog_const_source_x_2, 0), (self.blocks_float_to_complex_1, 1))
         self.connect((self.analog_const_source_x_2_0, 0), (self.blocks_float_to_complex_1_0, 1))
-        self.connect((self.analog_fastnoise_source_x_1, 0), (self.blocks_multiply_const_vxx_3, 0))
-        self.connect((self.analog_fastnoise_source_x_1, 0), (self.blocks_multiply_const_vxx_3_0, 0))
-        self.connect((self.analog_fastnoise_source_x_2, 0), (self.epy_block_0, 0))
-        self.connect((self.analog_fastnoise_source_x_2_0, 0), (self.epy_block_0_0_0, 0))
-        self.connect((self.analog_fastnoise_source_x_3, 0), (self.epy_block_0_0, 0))
-        self.connect((self.analog_fastnoise_source_x_3_0, 0), (self.epy_block_0_0_0_0, 0))
+        self.connect((self.analog_fastnoise_source_x_0, 0), (self.blocks_multiply_const_vxx_3, 0))
+        self.connect((self.analog_fastnoise_source_x_0, 0), (self.blocks_multiply_const_vxx_3_0, 0))
+        self.connect((self.analog_fastnoise_source_x_1, 0), (self.epy_block_0, 0))
+        self.connect((self.analog_fastnoise_source_x_2, 0), (self.epy_block_0_0, 0))
+        self.connect((self.analog_fastnoise_source_x_3, 0), (self.epy_block_0_0_0, 0))
+        self.connect((self.analog_fastnoise_source_x_4, 0), (self.epy_block_0_0_0_0, 0))
         self.connect((self.analog_noise_source_x_1, 0), (self.low_pass_filter_2, 0))
         self.connect((self.analog_noise_source_x_1_0, 0), (self.low_pass_filter_2_0, 0))
         self.connect((self.analog_sig_source_x_0_0, 0), (self.blocks_multiply_xx_0, 1))
@@ -276,10 +281,8 @@ class simulation(gr.top_block):
         self.connect((self.analog_sig_source_x_1_0, 0), (self.blocks_multiply_xx_1_0, 0))
         self.connect((self.analog_sig_source_x_2, 0), (self.blocks_multiply_xx_0_0_0_0_0, 1))
         self.connect((self.analog_sig_source_x_2_0, 0), (self.blocks_multiply_xx_0_0_0_0_0_0, 1))
-        self.connect((self.audio_source_0, 0), (self.blocks_float_to_complex_0, 0))
-        self.connect((self.audio_source_0, 1), (self.blocks_float_to_complex_0_0, 0))
-        self.connect((self.audio_source_0, 2), (self.blocks_null_sink_0, 0))
-        self.connect((self.audio_source_0, 3), (self.blocks_null_sink_0, 1))
+        self.connect((self.audio_source_2, 0), (self.blocks_float_to_complex_0, 0))
+        self.connect((self.audio_source_2, 1), (self.blocks_float_to_complex_0_0, 0))
         self.connect((self.blocks_add_xx_0, 0), (self.blocks_multiply_xx_1, 1))
         self.connect((self.blocks_add_xx_0_0, 0), (self.blocks_multiply_const_vxx_2, 0))
         self.connect((self.blocks_add_xx_0_0_0, 0), (self.blocks_multiply_const_vxx_2_0, 0))
@@ -300,9 +303,9 @@ class simulation(gr.top_block):
         self.connect((self.blocks_float_to_complex_0_0, 0), (self.blocks_multiply_xx_0_1, 0))
         self.connect((self.blocks_float_to_complex_1, 0), (self.blocks_multiply_xx_0_0_0_0_0, 2))
         self.connect((self.blocks_float_to_complex_1_0, 0), (self.blocks_multiply_xx_0_0_0_0_0_0, 2))
-        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.audio_sink_0, 1))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.audio_sink_1, 1))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_rms_xx_0_0, 0))
-        self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.audio_sink_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.audio_sink_1, 0))
         self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.blocks_rms_xx_0_0_0, 0))
         self.connect((self.blocks_multiply_const_vxx_1, 0), (self.blocks_float_to_complex_1, 0))
         self.connect((self.blocks_multiply_const_vxx_1_0, 0), (self.blocks_float_to_complex_1_0, 0))
@@ -332,8 +335,6 @@ class simulation(gr.top_block):
         self.connect((self.blocks_multiply_xx_1_0, 0), (self.blocks_complex_to_mag_squared_2_1, 0))
         self.connect((self.blocks_nlog10_ff_0, 0), (self.blocks_streams_to_vector_0, 2))
         self.connect((self.blocks_nlog10_ff_0_0, 0), (self.blocks_streams_to_vector_0, 3))
-        self.connect((self.blocks_null_source_0, 0), (self.audio_sink_0, 2))
-        self.connect((self.blocks_null_source_0, 1), (self.audio_sink_0, 3))
         self.connect((self.blocks_rms_xx_0, 0), (self.blocks_multiply_const_vxx_1, 0))
         self.connect((self.blocks_rms_xx_0_0, 0), (self.blocks_streams_to_vector_0_0, 0))
         self.connect((self.blocks_rms_xx_0_0_0, 0), (self.blocks_streams_to_vector_0_0, 1))
@@ -426,14 +427,14 @@ class simulation(gr.top_block):
         self.blocks_rms_xx_0_0.set_alpha(2*pi*self.tau_a*10/self.samp_rate)
         self.blocks_rms_xx_0_0_0.set_alpha(2*pi*self.tau_a*10/self.samp_rate)
         self.blocks_rms_xx_0_1.set_alpha(2*pi*self.tau_a*100/self.samp_rate)
-        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, 1750+100, 600, firdes.WIN_HAMMING, 6.76))
-        self.low_pass_filter_0_0.set_taps(firdes.low_pass(1, self.samp_rate, 1750+100, 600, firdes.WIN_HAMMING, 6.76))
-        self.low_pass_filter_1.set_taps(firdes.low_pass(self.ampl[0][0]*(self.samp_rate/100.0), self.samp_rate, 50, 25, firdes.WIN_HAMMING, 6.76))
-        self.low_pass_filter_1_0.set_taps(firdes.low_pass(self.ampl[0][1]*(self.samp_rate/100.0), self.samp_rate, 50, 25, firdes.WIN_HAMMING, 6.76))
-        self.low_pass_filter_1_0_0.set_taps(firdes.low_pass(self.ampl[1][1]*(self.samp_rate/100.0), self.samp_rate, 50, 25, firdes.WIN_HAMMING, 6.76))
-        self.low_pass_filter_1_1.set_taps(firdes.low_pass(self.ampl[1][0]*(self.samp_rate/100.0), self.samp_rate, 50, 25, firdes.WIN_HAMMING, 6.76))
-        self.low_pass_filter_2.set_taps(firdes.low_pass(1, self.samp_rate, 1550, 100, firdes.WIN_HAMMING, 6.76))
-        self.low_pass_filter_2_0.set_taps(firdes.low_pass(1, self.samp_rate, 1550, 100, firdes.WIN_HAMMING, 6.76))
+        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, 1750+100, 600, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_0_0.set_taps(firdes.low_pass(1, self.samp_rate, 1750+100, 600, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_1.set_taps(firdes.low_pass(self.ampl[0][0]*(self.samp_rate/100.0), self.samp_rate, 50, 25, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_1_0.set_taps(firdes.low_pass(self.ampl[0][1]*(self.samp_rate/100.0), self.samp_rate, 50, 25, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_1_0_0.set_taps(firdes.low_pass(self.ampl[1][1]*(self.samp_rate/100.0), self.samp_rate, 50, 25, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_1_1.set_taps(firdes.low_pass(self.ampl[1][0]*(self.samp_rate/100.0), self.samp_rate, 50, 25, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_2.set_taps(firdes.low_pass(1, self.samp_rate, 1550, 100, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_2_0.set_taps(firdes.low_pass(1, self.samp_rate, 1550, 100, window.WIN_HAMMING, 6.76))
         self.single_pole_iir_filter_xx_0.set_taps(2*pi*self.tau_a/self.samp_rate)
         self.single_pole_iir_filter_xx_0_0.set_taps(2*pi*self.tau_a/self.samp_rate)
         self.single_pole_iir_filter_xx_0_0_0.set_taps(2*pi*self.tau_a/self.samp_rate)
@@ -475,13 +476,7 @@ class simulation(gr.top_block):
         return self.fd
 
     def set_fd(self, fd):
-        if fd < 0.1:
-            fd = 0.1
         self.fd = fd
-        self.epy_block_0_0_0_0.reinit(self.fd)
-        self.epy_block_0_0_0.reinit(self.fd)
-        self.epy_block_0_0.reinit(self.fd)
-        self.epy_block_0.reinit(self.fd)
 
     def get_en_noise(self):
         return self.en_noise
@@ -489,7 +484,7 @@ class simulation(gr.top_block):
     def set_en_noise(self, en_noise):
         self.en_noise = en_noise
         self.blocks_multiply_const_vxx_3.set_k(self.en_noise[0])
-        self.blocks_multiply_const_vxx_3_0.set_k(self.en_noise[0])
+        self.blocks_multiply_const_vxx_3_0.set_k(self.en_noise[1])
 
     def get_doppler_ir(self):
         return self.doppler_ir
@@ -508,16 +503,15 @@ class simulation(gr.top_block):
         self.analog_const_source_x_1_1.set_offset(self.ampl[1][0])
         self.blocks_multiply_const_vxx_1.set_k(2 * sqrt(self.ampl[0][0]**2 + self.ampl[0][1]**2)*2)
         self.blocks_multiply_const_vxx_1_0.set_k(2 * sqrt(self.ampl[1][0]**2 + self.ampl[1][1]**2)*2)
-        self.low_pass_filter_1.set_taps(firdes.low_pass(self.ampl[0][0]*(self.samp_rate/100.0), self.samp_rate, 50, 25, firdes.WIN_HAMMING, 6.76))
-        self.low_pass_filter_1_0.set_taps(firdes.low_pass(self.ampl[0][1]*(self.samp_rate/100.0), self.samp_rate, 50, 25, firdes.WIN_HAMMING, 6.76))
-        self.low_pass_filter_1_0_0.set_taps(firdes.low_pass(self.ampl[1][1]*(self.samp_rate/100.0), self.samp_rate, 50, 25, firdes.WIN_HAMMING, 6.76))
-        self.low_pass_filter_1_1.set_taps(firdes.low_pass(self.ampl[1][0]*(self.samp_rate/100.0), self.samp_rate, 50, 25, firdes.WIN_HAMMING, 6.76))
+        self.low_pass_filter_1.set_taps(firdes.low_pass(self.ampl[0][0]*(self.samp_rate/100.0), self.samp_rate, 50, 25, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_1_0.set_taps(firdes.low_pass(self.ampl[0][1]*(self.samp_rate/100.0), self.samp_rate, 50, 25, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_1_0_0.set_taps(firdes.low_pass(self.ampl[1][1]*(self.samp_rate/100.0), self.samp_rate, 50, 25, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_1_1.set_taps(firdes.low_pass(self.ampl[1][0]*(self.samp_rate/100.0), self.samp_rate, 50, 25, window.WIN_HAMMING, 6.76))
 
 
 
 
-
-def main(top_block_cls=simulation, options=None):
+def main(top_block_cls=simulation_for_serg, options=None):
     tb = top_block_cls()
 
     def sig_handler(sig=None, frame=None):
