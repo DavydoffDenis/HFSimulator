@@ -11,7 +11,8 @@ from PyQt5.QtWidgets import (QWidget, QMainWindow, QTextEdit, QApplication,
 from PyQt5.QtGui import QIcon, QTextCursor, QPalette, QBrush, QPixmap
 from PyQt5.QtCore import Qt, QTimer, QObject, pyqtSignal
 
-import simulation
+# import simulation
+import simulation_test
 import functools
 import epoll_server
 import sys
@@ -26,7 +27,8 @@ class UserInterface(QMainWindow):
     
     def __init__(self):
         super(QMainWindow, self).__init__()
-        self.sim_t = simulation.simulation()  # Создаем экземпляр класса потока выполнения симуляции канала
+        # self.sim_t = simulation.simulation()  # Создаем экземпляр класса потока выполнения симуляции канала
+        self.sim_t = simulation_test.simulation_test()  # Создаем экземпляр класса потока выполнения симуляции канала для тестирования без внешней звуковой карты
         self.sim_handler = parameters_handler.Parameters(self.sim_t)  # Создаем экземпляр класса обслуживающего поток симуляции  
 #         self.adapt_mode = AsyncServer.ServerThread(self.sim_handler, self.tcp_host, self.tcp_port)  # Создаем экземпляр класса сервера для режима адапт. частоты
         self.adapt_mode = epoll_server.ServerHandler(self.sim_handler)

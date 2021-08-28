@@ -1,7 +1,6 @@
 options:
   parameters:
     author: Davydov Denis
-    catch_exceptions: 'True'
     category: '[GRC Hier Blocks]'
     cmake_opt: ''
     comment: ''
@@ -23,6 +22,7 @@ options:
     sizing_mode: fixed
     thread_safe_setters: ''
     title: HF channel simulation
+    window_size: ''
   states:
     bus_sink: false
     bus_source: false
