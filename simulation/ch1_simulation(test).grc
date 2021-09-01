@@ -99,7 +99,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [712, 76.0]
+    coordinate: [696, 76.0]
     rotation: 0
     state: true
 - name: fd
@@ -150,7 +150,7 @@ blocks:
     coordinate: [208, 76.0]
     rotation: 0
     state: enabled
-- name: out_rms_func_block
+- name: out_rms_func
   id: variable_function_probe
   parameters:
     block_id: out_rms
@@ -202,7 +202,7 @@ blocks:
     coordinate: [400, 12.0]
     rotation: 0
     state: enabled
-- name: snr_out_func_block
+- name: snr_out_func
   id: variable_function_probe
   parameters:
     block_id: snr_out
@@ -1094,7 +1094,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [792, 76.0]
+    coordinate: [776, 76.0]
     rotation: 0
     state: enabled
 - name: low_pass_filter_0

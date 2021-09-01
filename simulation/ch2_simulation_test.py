@@ -39,10 +39,10 @@ class ch2_simulation_test(gr.top_block):
         self.vol = vol = 1
         self.tau_a = tau_a = 1/100.
         self.tau = tau = 0.002
-        self.snr_out_func_block = snr_out_func_block = ([0]*3)
+        self.snr_out_func = snr_out_func = ([0]*3)
         self.samp_rate_0 = samp_rate_0 = 48000
         self.samp_rate = samp_rate = 48000
-        self.out_rms_func_block = out_rms_func_block = 0
+        self.out_rms_func = out_rms_func = 0
         self.noSpread = noSpread = 0
         self.kN = kN = pow(10.0, (-snr/20.0))
         self.freqShift = freqShift = 0.0
@@ -56,33 +56,33 @@ class ch2_simulation_test(gr.top_block):
         ##################################################
         self.snr_out = blocks.probe_signal_f()
         self.out_rms = blocks.probe_signal_f()
-        def _snr_out_func_block_probe():
+        def _snr_out_func_probe():
             while True:
 
                 val = self.snr_out.level()
                 try:
-                    self.set_snr_out_func_block(val)
+                    self.set_snr_out_func(val)
                 except AttributeError:
                     pass
                 time.sleep(1.0 / (10))
-        _snr_out_func_block_thread = threading.Thread(target=_snr_out_func_block_probe)
-        _snr_out_func_block_thread.daemon = True
-        _snr_out_func_block_thread.start()
+        _snr_out_func_thread = threading.Thread(target=_snr_out_func_probe)
+        _snr_out_func_thread.daemon = True
+        _snr_out_func_thread.start()
 
         self.single_pole_iir_filter_xx_0_0 = filter.single_pole_iir_filter_ff(2*pi*tau_a/samp_rate, 1)
         self.single_pole_iir_filter_xx_0 = filter.single_pole_iir_filter_ff(2*pi*tau_a/samp_rate, 1)
-        def _out_rms_func_block_probe():
+        def _out_rms_func_probe():
             while True:
 
                 val = self.out_rms.level()
                 try:
-                    self.set_out_rms_func_block(val)
+                    self.set_out_rms_func(val)
                 except AttributeError:
                     pass
                 time.sleep(1.0 / (10))
-        _out_rms_func_block_thread = threading.Thread(target=_out_rms_func_block_probe)
-        _out_rms_func_block_thread.daemon = True
-        _out_rms_func_block_thread.start()
+        _out_rms_func_thread = threading.Thread(target=_out_rms_func_probe)
+        _out_rms_func_thread.daemon = True
+        _out_rms_func_thread.start()
 
         self.low_pass_filter_2 = filter.fir_filter_ccf(
             1,
@@ -256,11 +256,11 @@ class ch2_simulation_test(gr.top_block):
         self.tau = tau
         self.blocks_delay_0.set_dly(int(self.tau*self.samp_rate))
 
-    def get_snr_out_func_block(self):
-        return self.snr_out_func_block
+    def get_snr_out_func(self):
+        return self.snr_out_func
 
-    def set_snr_out_func_block(self, snr_out_func_block):
-        self.snr_out_func_block = snr_out_func_block
+    def set_snr_out_func(self, snr_out_func):
+        self.snr_out_func = snr_out_func
 
     def get_samp_rate_0(self):
         return self.samp_rate_0
@@ -287,11 +287,11 @@ class ch2_simulation_test(gr.top_block):
         self.single_pole_iir_filter_xx_0.set_taps(2*pi*self.tau_a/self.samp_rate)
         self.single_pole_iir_filter_xx_0_0.set_taps(2*pi*self.tau_a/self.samp_rate)
 
-    def get_out_rms_func_block(self):
-        return self.out_rms_func_block
+    def get_out_rms_func(self):
+        return self.out_rms_func
 
-    def set_out_rms_func_block(self, out_rms_func_block):
-        self.out_rms_func_block = out_rms_func_block
+    def set_out_rms_func(self, out_rms_func):
+        self.out_rms_func = out_rms_func
 
     def get_noSpread(self):
         return self.noSpread
