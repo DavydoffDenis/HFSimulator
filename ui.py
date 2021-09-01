@@ -100,7 +100,7 @@ class UserInterface(QMainWindow):
         lbl17_about = QLabel()
         pixmap = QPixmap("polet.png")
         lbl17_about.setPixmap(pixmap)
-        lbl18_about = QLabel("Версия: 1.71")
+        lbl18_about = QLabel("Версия: 1.72")
         lbl19_about = QLabel("Авторы проекта: Алексей Львов, Денис Давыдов")
         lbl20_about = QLabel('АО "НПП "Полет", 2019-2021 г.')
         
@@ -426,38 +426,38 @@ class UserInterface(QMainWindow):
             self.channels_csv_filename = new_chanels_csv_filename
             
     def get_parameters_from_flow_graph(self, obj):  # Передаём в выбранные параметры значения из потока симуляции
-        if obj.flow_graph_is_running == True:
+        if obj.ch1_flow_graph_is_running == obj.ch2_flow_graph_is_running == True:
             #  Передаём в выбранные параметры значения из потока симуляции
-            # self.lbl8_beams.setText(str(round(self.sim_handler.get_ampl()[0][0], 2)))  # Амплитуда первого луча
+            self.lbl8_beams.setText(str(round(self.sim_handler.get_ampl(0), 2)))  # Амплитуда первого луча
             # self.lbl8_beams.setText(str(round(obj.sim_t.get_ampl()[0][0], 2)))  # Амплитуда первого луча
-            self.lbl8_beams.setText(str(round(obj.ch1_sim_t.get_ampl()[0][0], 2)))  # Амплитуда первого луча
+            # self.lbl8_beams.setText(str(round(obj.ch1_sim_t.get_ampl()[0][0], 2)))  # Амплитуда первого луча
 
-            # self.lbl9_beams.setText(str(round(self.sim_handler.get_ampl()[0][1], 2)))  # Амплитуда второго луча
+            self.lbl9_beams.setText(str(round(self.sim_handler.get_ampl(1), 2)))  # Амплитуда второго луча
             # self.lbl9_beams.setText(str(round(obj.sim_t.get_ampl()[0][1], 2)))  # Амплитуда второго луча
-            self.lbl9_beams.setText(str(round(obj.ch1_sim_t.get_ampl()[0][1], 2)))  # Амплитуда второго луча
+            # self.lbl9_beams.setText(str(round(obj.ch1_sim_t.get_ampl()[0][1], 2)))  # Амплитуда второго луча
 
-            # self.lbl11_beams.setText(str(self.sim_handler.get_tau()*1000))  # Задержка второго луча относительно первого
+            self.lbl11_beams.setText(str(self.sim_handler.get_tau()*1000))  # Задержка второго луча относительно первого
             # self.lbl11_beams.setText(str(obj.sim_t.get_tau()*1000))  # Задержка второго луча относительно первого
-            self.lbl11_beams.setText(str(obj.ch1_sim_t.get_tau()*1000))  # Задержка второго луча относительно первого
+            # self.lbl11_beams.setText(str(obj.ch1_sim_t.get_tau()*1000))  # Задержка второго луча относительно первого
             
-            # self.lbl7_doppler.setText(str(round(self.sim_handler.get_dop_freq_shift(), 2)))  # Доплеровский сдвиг частоты
+            self.lbl7_doppler.setText(str(round(self.sim_handler.get_dop_freq_shift(), 2)))  # Доплеровский сдвиг частоты
             # self.lbl7_doppler.setText(str(round(obj.sim_t.get_freqShift(), 2)))  # Доплеровский сдвиг частоты
-            self.lbl7_doppler.setText(str(round(obj.ch1_sim_t.get_freqShift(), 2)))  # Доплеровский сдвиг частоты
+            # self.lbl7_doppler.setText(str(round(obj.ch1_sim_t.get_freqShift(), 2)))  # Доплеровский сдвиг частоты
             
             # Передаём в выбранные параметры установленные значения доплеровского уширения и отношения сигнал-шум
-            # self.lbl8_doppler.setText(str(round(obj.sim_t.get_fd(), 2)))  # Доплеровское уширение (рассеивание)
+            self.lbl8_doppler.setText(str(round(self.sim_handler.get_dop_ir(), 2)))  # Доплеровское уширение (рассеивание)
+            self.lbl4_snr.setText(str(round(self.sim_handler.snr, 2)))  # Отношение сигнал-шум
+            # self.lbl8_doppler.setText(str(round(obj.ch1_sim_t.get_fd(), 2)))  # Доплеровское уширение (рассеивание)
             # self.lbl4_snr.setText(str(round(obj.snr, 2)))  # Отношение сигнал-шум
-            self.lbl8_doppler.setText(str(round(obj.ch1_sim_t.get_fd(), 2)))  # Доплеровское уширение (рассеивание)
-            self.lbl4_snr.setText(str(round(obj.snr, 2)))  # Отношение сигнал-шум
 
             #  Извлекаем данные, которые кладутся в измеренные параметры
             # snr = obj.sim_t.get_snrVecOut()
             # rms1 = round(obj.sim_t.get_outSigRMSVec()[0], 2)
             # rms2 = round(obj.sim_t.get_outSigRMSVec()[1], 2)
-            snr1 = round(obj.ch1_sim_t.get_snr_out_func_block(), 2)
-            snr2 = round(obj.ch2_sim_t.get_snr_out_func_block(), 2)
-            rms1 = round(obj.ch1_sim_t.get_out_rms_func_block, 2)
-            rms2 = round(obj.ch2_sim_t.get_out_rms_func_block, 2)
+            snr1 = round(self.sim_handler.get_ch1_snr(), 2)
+            snr2 = round(self.sim_handler.get_ch2_snr(), 2)
+            rms1 = round(self.sim_handler.get_ch1_rms(), 2)
+            rms2 = round(self.sim_handler.get_ch2_rms(), 2)
             
             # self.lbl7_snr.setText(str(round(snr[2], 2)))
             # self.lbl7_1_snr.setText(str(round(snr[3], 2)))
@@ -505,7 +505,8 @@ class UserInterface(QMainWindow):
         
         self.sim_handler.on_off_out1 = self.dbl7_snr.value()
         self.sim_handler.on_off_out2 = self.dbl8_snr.value()
-        self.sim_handler.en_silence_noise = [0,0]
+        self.sim_handler.ch1_en_silence_noise = 0
+        self.sim_handler.ch2_en_silence_noise = 0
         
         self.sim_handler.start_sim()  # Запуск симуляции канала
         
@@ -563,14 +564,14 @@ class UserInterface(QMainWindow):
         
     def start_stop_button_handler(self):
         if self.gr_box3_fixed_freq_mode.isChecked():  # Если выбран режим фиксированной частоты
-            if self.sim_handler.flow_graph_is_running:
+            if self.sim_handler.ch1_flow_graph_is_running and self.sim_handler.ch2_flow_graph_is_running:
                 self.sim_handler.stop_sim()  # Остановка симуляции в режиме фиксированной частоты
                 print("Поток выполнения остановлен\n")
                 self.statusBar().showMessage("Поток выполнения остановлен")
                 self.btn2_start_stop.setText("Запустить симуляцию канала")
                 self.gr_box3_fixed_freq_mode.setEnabled(True)  # Разблокировывает редактироватие параметров после остановки симуляции
                 self.gr_box4_freq_adapt_mode.setEnabled(True)
-            elif not self.sim_handler.flow_graph_is_running:
+            elif not (self.sim_handler.ch1_flow_graph_is_running and self.sim_handler.ch2_flow_graph_is_running):
                 if not self.check_if_csv_file_with_channels_exists():
                     return
                 self.start_sim_in_fixed_mode()
