@@ -51,7 +51,9 @@ class ServerHandler(Thread):
         if any(self.ampl_mult):
             print(f"Параметры симуляции:\n a1 - {self.ampl1}, a2 - {self.ampl2}, tau - {self.tau}, dop_shift - {self.dop_shift}, dop_fd - {self.dop_fd}, snr - {self.snr}")
             print("Процесс симуляции запущен...\n")
-        if self.sim_handler.flow_graph_is_running == True:
+        if self.sim_handler.ch1_flow_graph_is_running and restart_channels[0] == True:
+            self.sim_handler.stop_sim()  # Останавливаем симуляцию для переконфигурирования симулятора
+        if self.sim_handler.ch2_flow_graph_is_running and restart_channels[1] == True:
             self.sim_handler.stop_sim()  # Останавливаем симуляцию для переконфигурирования симулятора
         self.sim_handler.ampl1 = self.ampl1  # Амплитуда первого луча
         self.sim_handler.ampl2 = self.ampl2  # Амплитуда второго луча
@@ -62,7 +64,7 @@ class ServerHandler(Thread):
         self.sim_handler.on_off_out1 = self.ampl_mult[0]
         self.sim_handler.on_off_out2 = self.ampl_mult[1]
         self.sim_handler.ch1_en_silence_noise = self.en_noise[0]
-        self.sim_handler.ch1_en_silence_noise = self.en_noise[1]
+        self.sim_handler.ch2_en_silence_noise = self.en_noise[1]
         self.sim_handler.ch1_restart = restart_channels[0]
         self.sim_handler.ch2_restart = restart_channels[1]
         self.sim_handler.start_sim()  # Запуск симуляции канала
@@ -93,7 +95,7 @@ class ServerHandler(Thread):
         if None in [self.new_modem_1_TX_ch_num, self.new_modem_1_RX_ch_num]:
             print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
             print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
-            print(f'Не получены номера каналов первого модема, ожидание...\ntx2 - {self.modem_2_TX_ch_num}, rx2 - {self.modem_2_RX_ch_num}\n')
+            print(f'Не получены номера каналов первого модема, ожидание...\ntx2 - {self.new_modem_2_TX_ch_num}, rx2 - {self.new_modem_2_RX_ch_num}\n')
             # self.send(bytearray([0]))
             self.data_to_send = self.data_to_read
             self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
@@ -102,7 +104,7 @@ class ServerHandler(Thread):
         elif None in [self.new_modem_2_TX_ch_num, self.new_modem_2_RX_ch_num]:
             print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
             print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
-            print(f'Не получены номера каналов второго модема, ожидание...\ntx1 - {self.modem_1_TX_ch_num}, rx1 - {self.modem_1_RX_ch_num}\n')
+            print(f'Не получены номера каналов второго модема, ожидание...\ntx1 - {self.new_modem_1_TX_ch_num}, rx1 - {self.new_modem_1_RX_ch_num}\n')
             # self.send(bytearray([0]))
             self.data_to_send = self.data_to_read
             self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
@@ -118,7 +120,7 @@ class ServerHandler(Thread):
                 print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
                 print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
                 print(f"Выбраный канал: {channel_number} совпадает с действующим, дополнительных действий не требуется")
-                print(f"Комбинация номеров каналов: tx1 - {self.modem_1_TX_ch_num}, rx1 - {self.modem_1_RX_ch_num}, tx2 - {self.modem_2_TX_ch_num}, rx2 - {self.modem_2_RX_ch_num}")
+                print(f"Комбинация номеров каналов: tx1 - {self.new_modem_1_TX_ch_num}, rx1 - {self.new_modem_1_RX_ch_num}, tx2 - {self.new_modem_2_TX_ch_num}, rx2 - {self.new_modem_2_RX_ch_num}")
                 print("Процесс симуляции продолжается со старыми значениями параметров канала")
                 self.t1 = datetime.datetime.now()
                 self.data_to_send = self.data_to_read
@@ -138,7 +140,7 @@ class ServerHandler(Thread):
                 print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
                 print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
                 print(f"Выбраный канал: {channel_number}")
-                print(f"Комбинация номеров каналов: tx1 - {self.modem_1_TX_ch_num}, rx1 - {self.modem_1_RX_ch_num}, tx2 - {self.modem_2_TX_ch_num}, rx2 - {self.modem_2_RX_ch_num}")
+                print(f"Комбинация номеров каналов: tx1 - {self.new_modem_1_TX_ch_num}, rx1 - {self.new_modem_1_RX_ch_num}, tx2 - {self.new_modem_2_TX_ch_num}, rx2 - {self.new_modem_2_RX_ch_num}")
                 restart_channels = (1,1)
                 self.start_sim(channel_number, restart_channels)
                 self.t1 = datetime.datetime.now()
@@ -156,7 +158,7 @@ class ServerHandler(Thread):
                 print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
                 print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
                 print(f"Выбраный новый второй канал: {channel_number}, первый канал совпадает с действующим")
-                print(f"Комбинация номеров каналов: tx1 - {self.modem_1_TX_ch_num}, rx1 - {self.modem_1_RX_ch_num}, tx2 - {self.modem_2_TX_ch_num}, rx2 - {self.modem_2_RX_ch_num}")
+                print(f"Комбинация номеров каналов: tx1 - {self.new_modem_1_TX_ch_num}, rx1 - {self.new_modem_1_RX_ch_num}, tx2 - {self.new_modem_2_TX_ch_num}, rx2 - {self.new_modem_2_RX_ch_num}")
                 print("Запускаем второй канал с новыми параметрами, первый канал продолжает выполнение с действующими")
                 restart_channels = (0,1)
                 self.start_sim(channel_number, restart_channels)
@@ -175,7 +177,7 @@ class ServerHandler(Thread):
                 print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
                 print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
                 print(f"Выбраный новый первый канал: {channel_number}, второй канал совпадает с действующим")
-                print(f"Комбинация номеров каналов: tx1 - {self.modem_1_TX_ch_num}, rx1 - {self.modem_1_RX_ch_num}, tx2 - {self.modem_2_TX_ch_num}, rx2 - {self.modem_2_RX_ch_num}")
+                print(f"Комбинация номеров каналов: tx1 - {self.new_modem_1_TX_ch_num}, rx1 - {self.new_modem_1_RX_ch_num}, tx2 - {self.new_modem_2_TX_ch_num}, rx2 - {self.new_modem_2_RX_ch_num}")
                 print("Запускаем первый канал с новыми параметрами, второй канал продолжает выполнение с действующими")
                 restart_channels = (1,0)
                 self.start_sim(channel_number, restart_channels)
@@ -194,14 +196,28 @@ class ServerHandler(Thread):
                 print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
                 print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
                 print(f"Выбраный канал: {channel_number}")
-                print(f"Комбинация номеров каналов: tx1 - {self.modem_1_TX_ch_num}, rx1 - {self.modem_1_RX_ch_num}, tx2 - {self.modem_2_TX_ch_num}, rx2 - {self.modem_2_RX_ch_num}")
+                print(f"Комбинация номеров каналов: tx1 - {self.new_modem_1_TX_ch_num}, rx1 - {self.new_modem_1_RX_ch_num}, tx2 - {self.new_modem_2_TX_ch_num}, rx2 - {self.new_modem_2_RX_ch_num}")
                 restart_channels = (1,1)  # Рестартим оба канала, т.к. в канале с несовпадающими номерами каналов должен генерироваться белый шум
                 self.start_sim(channel_number, restart_channels)
                 self.t1 = datetime.datetime.now()
                 self.data_to_send = self.data_to_read
                 self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
 
-            elif self.modem_2_TX_ch_num == self.modem_1_RX_ch_num:
+            elif self.new_modem_2_TX_ch_num == self.new_modem_1_RX_ch_num ==\
+                self.new_modem_2_TX_ch_num == self.new_modem_1_RX_ch_num:
+            # Повторное включение того же канала,
+            # втрой слышит первого, первый не слышит второй.
+                channel_number = self.modem_1_TX_ch_num
+                print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
+                print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
+                print(f"Выбраный канал: {channel_number} совпадает с действующим, дополнительных действий не требуется")
+                print(f"Комбинация номеров каналов: tx1 - {self.new_modem_1_TX_ch_num}, rx1 - {self.new_modem_1_RX_ch_num}, tx2 - {self.new_modem_2_TX_ch_num}, rx2 - {self.new_modem_2_RX_ch_num}")
+                print("Процесс симуляции продолжается со старыми значениями параметров канала")
+                self.t1 = datetime.datetime.now()
+                self.data_to_send = self.data_to_read
+                self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
+
+            elif self.new_modem_2_TX_ch_num == self.new_modem_1_RX_ch_num:
             # первый слышит второй, второй не слышит первого
                 channel_number = self.modem_2_TX_ch_num
                 self.ampl_mult = [0, 1]
@@ -209,14 +225,27 @@ class ServerHandler(Thread):
                 print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
                 print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
                 print(f"Выбраный канал: {channel_number}")
-                print(f"Комбинация номеров каналов: tx1 - {self.modem_1_TX_ch_num}, rx1 - {self.modem_1_RX_ch_num}, tx2 - {self.modem_2_TX_ch_num}, rx2 - {self.modem_2_RX_ch_num}")
+                print(f"Комбинация номеров каналов: tx1 - {self.new_modem_1_TX_ch_num}, rx1 - {self.new_modem_1_RX_ch_num}, tx2 - {self.new_modem_2_TX_ch_num}, rx2 - {self.new_modem_2_RX_ch_num}")
                 restart_channels = (1,1)  # Рестартим оба канала, т.к. в канале с несовпадающими номерами каналов должен генерироваться белый шум
                 self.start_sim(channel_number, restart_channels)
                 self.t1 = datetime.datetime.now()
                 self.data_to_send = self.data_to_read
                 self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
-#                 conn.send(self.data_to_read)
 
+            elif self.new_modem_2_TX_ch_num == self.new_modem_1_RX_ch_num ==\
+                self.new_modem_2_TX_ch_num == self.new_modem_1_RX_ch_num:
+            # Повторное включение того же канала,
+            # втрой слышит первого, первый не слышит второй.
+                channel_number = self.modem_1_TX_ch_num
+                print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
+                print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
+                print(f"Выбраный канал: {channel_number} совпадает с действующим, дополнительных действий не требуется")
+                print(f"Комбинация номеров каналов: tx1 - {self.new_modem_1_TX_ch_num}, rx1 - {self.new_modem_1_RX_ch_num}, tx2 - {self.new_modem_2_TX_ch_num}, rx2 - {self.new_modem_2_RX_ch_num}")
+                print("Процесс симуляции продолжается со старыми значениями параметров канала")
+                self.t1 = datetime.datetime.now()
+                self.data_to_send = self.data_to_read
+                self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
+            
             else:
                 # никто никого не слышит
                 channel_number = 1
@@ -224,7 +253,7 @@ class ServerHandler(Thread):
                 self.en_noise = [1, 1]
                 print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
                 print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
-                print(f"Недопустимая комбинация номеров каналов: tx1 - {self.modem_1_TX_ch_num}, rx1 - {self.modem_1_RX_ch_num}, tx2 - {self.modem_2_TX_ch_num}, rx2 - {self.modem_2_RX_ch_num}")
+                print(f"Недопустимая комбинация номеров каналов: tx1 - {self.new_modem_1_TX_ch_num}, rx1 - {self.new_modem_1_RX_ch_num}, tx2 - {self.new_modem_2_TX_ch_num}, rx2 - {self.new_modem_2_RX_ch_num}")
                 print("Процесс симуляции остановлен!\n")
                 restart_channels = (1,1)  # Рестартим оба канала, т.к. в канале с несовпадающими номерами каналов должен генерироваться белый шум
                 self.start_sim(channel_number, restart_channels)
