@@ -13,8 +13,8 @@ from PyQt5.QtCore import Qt, QTimer, QObject, pyqtSignal
 
 # import simulation
 # import simulation_test
-import ch1_simulation_test
-import ch2_simulation_test
+import ch1_simulation
+import ch2_simulation
 import functools
 import epoll_server
 import sys
@@ -31,8 +31,8 @@ class UserInterface(QMainWindow):
         super(QMainWindow, self).__init__()
         # self.sim_t = simulation.simulation()  # Создаем экземпляр класса потока выполнения симуляции канала
         # self.sim_t = simulation_test.simulation_test()  # Создаем экземпляр класса потока выполнения симуляции канала для тестирования без внешней звуковой карты
-        self.ch1_sim_t = ch1_simulation_test.ch1_simulation_test()
-        self.ch2_sim_t = ch2_simulation_test.ch2_simulation_test()
+        self.ch1_sim_t = ch1_simulation.ch1_simulation()
+        self.ch2_sim_t = ch2_simulation.ch2_simulation()
         self.sim_handler = parameters_handler.Parameters(self.ch1_sim_t, self.ch2_sim_t)  # Создаем экземпляр класса обслуживающего поток симуляции  
 #         self.adapt_mode = AsyncServer.ServerThread(self.sim_handler, self.tcp_host, self.tcp_port)  # Создаем экземпляр класса сервера для режима адапт. частоты
         self.adapt_mode = epoll_server.ServerHandler(self.sim_handler)
