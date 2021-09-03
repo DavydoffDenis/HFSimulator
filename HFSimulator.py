@@ -13,3 +13,4 @@ if __name__ == '__main__':
         sys.exit(app.exec_())
     except RuntimeError:
         print("Проверяйте источники звука для симулятора!")
+        

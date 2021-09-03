@@ -6,6 +6,8 @@ import time
 address = 12
 reception_channel_number = 1
 transmission_channel_number = 1
+reception_channel_number = 1
+transmission_channel_number = 1
 
 # print('Address: {} RX: {} TX: {}'.format(address, reception_channel_number, \
 #       transmission_channel_number))
