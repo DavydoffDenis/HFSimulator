@@ -174,7 +174,7 @@ class UserInterface(QMainWindow):
         
         self.str1_serv_addr = QLineEdit()  # Адрес сервера
         self.str1_serv_addr.setText("localhost")
-        self.str1_serv_addr.setMaxLength(11)
+        self.str1_serv_addr.setMaxLength(15)
         
         self.btn1_setup = QPushButton("Загрузить новый набор частотных каналов")  # Кнопка, отвечающая за загрузку файла с параметрами каналов
         self.btn2_start_stop = QPushButton("Запустить симуляцию канала")  # Позволяет включать и выключать поток симуляции канала 
