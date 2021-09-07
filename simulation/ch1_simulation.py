@@ -152,7 +152,7 @@ class ch1_simulation(gr.top_block):
         self.blocks_add_xx_0_0_1 = blocks.add_vcc(1)
         self.blocks_add_xx_0_0_0_0 = blocks.add_vcc(1)
         self.blocks_add_xx_0 = blocks.add_vcc(1)
-        self.audio_source_0 = audio.source(samp_rate, '', False)
+        self.audio_source_0 = audio.source(samp_rate, '', True)
         self.audio_sink_0 = audio.sink(samp_rate, '', False)
         self.analog_sig_source_x_2 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, 1850, 1, 0, 0)
         self.analog_sig_source_x_1_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, freqShift, 1, 0, 0)
