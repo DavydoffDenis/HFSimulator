@@ -250,4 +250,9 @@ class Parameters:
             self.ch1_sim_t.wait()
             #del self.sim_t
             self.ch1_flow_graph_is_running = False  # Выставляем флаг, сигнализирующий о том, что поток симуляции канала остановлен
+        if self.ch2_restart == True:
+            self.ch2_sim_t.stop()
+            self.ch2_sim_t.wait()
+            #del self.sim_t
+            self.ch2_flow_graph_is_running = False  # Выставляем флаг, сигнализирующий о том, что поток симуляции канала остановлен
 

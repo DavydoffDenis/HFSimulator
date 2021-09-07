@@ -51,6 +51,8 @@ class ServerHandler(Thread):
         if any(self.ampl_mult):
             print(f"Параметры симуляции:\n a1 - {self.ampl1}, a2 - {self.ampl2}, tau - {self.tau}, dop_shift - {self.dop_shift}, dop_fd - {self.dop_fd}, snr - {self.snr}")
             print("Процесс симуляции запущен...\n")
+        self.sim_handler.ch1_restart = restart_channels[0]
+        self.sim_handler.ch2_restart = restart_channels[1]
         if self.sim_handler.ch1_flow_graph_is_running and restart_channels[0] == True:
             self.sim_handler.stop_sim()  # Останавливаем симуляцию для переконфигурирования симулятора
         if self.sim_handler.ch2_flow_graph_is_running and restart_channels[1] == True:
@@ -65,8 +67,6 @@ class ServerHandler(Thread):
         self.sim_handler.on_off_out2 = self.ampl_mult[1]
         self.sim_handler.ch1_en_silence_noise = self.en_noise[0]
         self.sim_handler.ch2_en_silence_noise = self.en_noise[1]
-        self.sim_handler.ch1_restart = restart_channels[0]
-        self.sim_handler.ch2_restart = restart_channels[1]
         self.sim_handler.start_sim()  # Запуск симуляции канала
         
     def read_data_handler(self, fileno):

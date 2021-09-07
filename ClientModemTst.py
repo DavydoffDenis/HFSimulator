@@ -5,9 +5,7 @@ import time
 
 address = 12
 reception_channel_number = 1
-transmission_channel_number = 1
-reception_channel_number = 1
-transmission_channel_number = 1
+transmission_channel_number = 8
 
 # print('Address: {} RX: {} TX: {}'.format(address, reception_channel_number, \
 #       transmission_channel_number))
@@ -25,7 +23,7 @@ try:
         modem2.sendall(bytearray(data))
         rec = modem2.recv(3)
         print("received:", rec)
-        # reception_channel_number += 1
-        time.sleep(4)
+        reception_channel_number += 1
+        time.sleep(1.35)
 finally:
     modem2.close()
