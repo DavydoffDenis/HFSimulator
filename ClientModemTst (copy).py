@@ -17,6 +17,8 @@ modem2 = socket(AF_INET, SOCK_STREAM)
 modem2.connect(("localhost", 8080))
 try:
     while True:
+        if reception_channel_number > 10:
+            reception_channel_number = 1
         data = []
         data.append(address)
         data.append(transmission_channel_number)
