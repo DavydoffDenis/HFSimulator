@@ -123,16 +123,16 @@ class Parameters:
             self.ch1_sim_t.wait()
             self.ch2_sim_t.wait()
             #time.sleep(2)
-            self.ch1_sim_t.start(Nbuf)
-            self.ch2_sim_t.start(Nbuf)
+            self.ch1_sim_t.start()
+            self.ch2_sim_t.start()
         elif self.ch1_restart == True:
             self.ch1_sim_t.stop()
             self.ch1_sim_t.wait()
-            self.ch1_sim_t.start(Nbuf)
+            self.ch1_sim_t.start()
         elif self.ch2_restart == True:
             self.ch2_sim_t.stop()
             self.ch2_sim_t.wait()
-            self.ch2_sim_t.start(Nbuf)
+            self.ch2_sim_t.start()
 
     def start_sim(self):
 #         print(self.ampl1, self.ampl2, self.tau, self.dop_shift, self.dop_fd, self.snr)
@@ -165,8 +165,8 @@ class Parameters:
             self.ch2_sim_t.set_en_noise(self.ch2_en_silence_noise)
             
             self.Nbuf = int(self.latency*self.samp_rate)
-            self.ch1_sim_t.start(self.Nbuf)
-            self.ch2_sim_t.start(self.Nbuf)
+            self.ch1_sim_t.start()
+            self.ch2_sim_t.start()
             if self.dop_fd == 0:
                 self.ch1_sim_t.set_noSpread(1)
                 self.ch2_sim_t.set_noSpread(1)
@@ -189,7 +189,7 @@ class Parameters:
             self.ch1_sim_t.set_vol(self.on_off_out1)
             self.ch1_sim_t.set_en_noise(self.ch1_en_silence_noise)
             self.Nbuf = int(self.latency*self.samp_rate)
-            self.ch1_sim_t.start(self.Nbuf)
+            self.ch1_sim_t.start()
             if self.dop_fd == 0:
                 self.ch1_sim_t.set_noSpread(1)
     #             print('Nospread selected')
@@ -209,7 +209,7 @@ class Parameters:
             self.ch2_sim_t.set_vol(self.on_off_out1)
             self.ch2_sim_t.set_en_noise(self.ch1_en_silence_noise)
             self.Nbuf = int(self.latency*self.samp_rate)
-            self.ch2_sim_t.start(self.Nbuf)
+            self.ch2_sim_t.start()
             if self.dop_fd == 0:
                 self.ch2_sim_t.set_noSpread(1)
     #             print('Nospread selected')

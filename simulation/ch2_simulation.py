@@ -35,7 +35,7 @@ class ch2_simulation(gr.top_block):
         ##################################################
         # Variables
         ##################################################
-        self.snr = snr = 10
+        self.snr = snr = 40
         self.vol = vol = 1
         self.tau_a = tau_a = 1/100.
         self.tau = tau = 0.002
@@ -128,8 +128,6 @@ class ch2_simulation(gr.top_block):
         self.blocks_selector_0.set_enabled(True)
         self.blocks_rms_xx_0_0 = blocks.rms_ff(2*pi*tau_a*10/samp_rate)
         self.blocks_rms_xx_0 = blocks.rms_cf(2*pi*tau_a*100/samp_rate)
-        self.blocks_null_source_0 = blocks.null_source(gr.sizeof_float*1)
-        self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_float*1)
         self.blocks_nlog10_ff_0 = blocks.nlog10_ff(10, 1, 0)
         self.blocks_multiply_xx_1_0 = blocks.multiply_vcc(1)
         self.blocks_multiply_xx_0_0_0_0_0 = blocks.multiply_vcc(1)
@@ -152,8 +150,8 @@ class ch2_simulation(gr.top_block):
         self.blocks_add_xx_0_0_1 = blocks.add_vcc(1)
         self.blocks_add_xx_0_0_0_0 = blocks.add_vcc(1)
         self.blocks_add_xx_0 = blocks.add_vcc(1)
-        self.audio_source_0 = audio.source(samp_rate, '', True)
-        self.audio_sink_0 = audio.sink(samp_rate, '', False)
+        self.audio_source_0 = audio.source(samp_rate, 'in2', False)
+        self.audio_sink_0 = audio.sink(samp_rate, 'out1', False)
         self.analog_sig_source_x_2 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, 1850, 1, 0, 0)
         self.analog_sig_source_x_1_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, freqShift, 1, 0, 0)
         self.analog_sig_source_x_0_0_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, 1850, 1, 0, 0)
@@ -184,8 +182,7 @@ class ch2_simulation(gr.top_block):
         self.connect((self.analog_sig_source_x_0_0_0, 0), (self.blocks_multiply_xx_0_0, 1))
         self.connect((self.analog_sig_source_x_1_0, 0), (self.blocks_multiply_xx_1_0, 0))
         self.connect((self.analog_sig_source_x_2, 0), (self.blocks_multiply_xx_0_0_0_0_0, 1))
-        self.connect((self.audio_source_0, 1), (self.blocks_float_to_complex_0, 0))
-        self.connect((self.audio_source_0, 0), (self.blocks_null_sink_0, 0))
+        self.connect((self.audio_source_0, 0), (self.blocks_float_to_complex_0, 0))
         self.connect((self.blocks_add_xx_0, 0), (self.blocks_add_xx_0_0_1, 0))
         self.connect((self.blocks_add_xx_0_0_0_0, 0), (self.blocks_multiply_const_vxx_2_0, 0))
         self.connect((self.blocks_add_xx_0_0_1, 0), (self.blocks_multiply_xx_1_0, 1))
@@ -214,7 +211,6 @@ class ch2_simulation(gr.top_block):
         self.connect((self.blocks_multiply_xx_1_0, 0), (self.blocks_add_xx_0_0_0_0, 0))
         self.connect((self.blocks_multiply_xx_1_0, 0), (self.blocks_complex_to_mag_squared_2, 0))
         self.connect((self.blocks_nlog10_ff_0, 0), (self.snr_out, 0))
-        self.connect((self.blocks_null_source_0, 0), (self.audio_sink_0, 1))
         self.connect((self.blocks_rms_xx_0, 0), (self.blocks_multiply_const_vxx_1, 0))
         self.connect((self.blocks_rms_xx_0_0, 0), (self.out_rms, 0))
         self.connect((self.blocks_selector_0, 0), (self.blocks_multiply_xx_0_0_0, 1))
@@ -365,7 +361,7 @@ def main(top_block_cls=ch2_simulation, options=None):
     signal.signal(signal.SIGINT, sig_handler)
     signal.signal(signal.SIGTERM, sig_handler)
 
-    tb.start(2400)
+    tb.start()
 
     tb.wait()
 
