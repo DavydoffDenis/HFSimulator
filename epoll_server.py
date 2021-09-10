@@ -28,6 +28,9 @@ class ServerHandler(Thread):
         self.new_modem_1_TX_ch_num = None  # Новый номер передающего канала модема подключенного к первому входу звуковой карты
         self.new_modem_2_RX_ch_num = None  # Новый номер приемного канала модема подключенного ко второму входу звуковой карты
         self.new_modem_2_TX_ch_num = None  # Новый номер передающего канала модема подключенного ко второму входу звуковой карты
+
+        self.ch1_noise_already_on = False
+        self.ch2_noise_already_on = False
         
         self.server_is_running = None  
         self.stop_server_flag = None
@@ -151,6 +154,7 @@ class ServerHandler(Thread):
                 self.en_noise = [0, 0]
                 restart_channels = (0,1)
                 self.start_sim(channel_number, restart_channels)
+                self.ch2_noise_already_on = False
                 self.t1 = datetime.datetime.now()
                 self.data_to_send = self.data_to_read
                 self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
@@ -175,6 +179,7 @@ class ServerHandler(Thread):
                 self.en_noise = [0, 0]
                 restart_channels = (1,0)
                 self.start_sim(channel_number, restart_channels)
+                self.ch1_noise_already_on = False
                 self.t1 = datetime.datetime.now()
                 self.data_to_send = self.data_to_read
                 self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
@@ -199,6 +204,8 @@ class ServerHandler(Thread):
                 self.en_noise = [0, 0]
                 restart_channels = (1,1)
                 self.start_sim(channel_number, restart_channels)
+                self.ch1_noise_already_on = False
+                self.ch2_noise_already_on = False
                 self.t1 = datetime.datetime.now()
                 self.data_to_send = self.data_to_read
                 self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
@@ -219,10 +226,12 @@ class ServerHandler(Thread):
                 print("Второй слышит первого, первый не слышит второй")
                 print(f"Комбинация номеров каналов: tx1 - {self.new_modem_1_TX_ch_num}, rx1 - {self.new_modem_1_RX_ch_num}, tx2 - {self.new_modem_2_TX_ch_num}, rx2 - {self.new_modem_2_RX_ch_num}")
                 print("Процесс симуляции продолжается со старыми значениями параметров канала")
-                self.ampl_mult = [1, 0]
-                self.en_noise = [0, 1]
-                restart_channels = (0,1)
-                self.start_sim(channel_number, restart_channels)
+                if not self.ch2_noise_already_on:
+                    self.ampl_mult = [1, 0]
+                    self.en_noise = [0, 1]
+                    restart_channels = (0,1)
+                    self.start_sim(channel_number, restart_channels)
+                    self.ch2_noise_already_on = True
                 self.t1 = datetime.datetime.now()
                 self.data_to_send = self.data_to_read
                 self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
@@ -243,8 +252,13 @@ class ServerHandler(Thread):
                 print(f"Выбранный канал: {channel_number}")
                 print("Второй слышит первого, первый не слышит второй")
                 print(f"Комбинация номеров каналов: tx1 - {self.new_modem_1_TX_ch_num}, rx1 - {self.new_modem_1_RX_ch_num}, tx2 - {self.new_modem_2_TX_ch_num}, rx2 - {self.new_modem_2_RX_ch_num}")
-                restart_channels = (1,1)  # Рестартим оба канала, т.к. в канале с несовпадающими номерами каналов должен генерироваться белый шум
+                if not self.ch2_noise_already_on:
+                    restart_channels = (1,1)  # Рестартим оба канала, т.к. в канале с несовпадающими номерами каналов должен генерироваться белый шум
+                    self.ch2_noise_already_on = True
+                else:
+                    restart_channels = (1,0)  # Рестартим только первый канал, т.к. во втором канале уже генерируется белый шум
                 self.start_sim(channel_number, restart_channels)
+                self.ch1_noise_already_on = False
                 self.t1 = datetime.datetime.now()
                 self.data_to_send = self.data_to_read
                 self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
@@ -265,10 +279,12 @@ class ServerHandler(Thread):
                 print("Первый слышит второго, второй не слышит первого")
                 print(f"Комбинация номеров каналов: tx1 - {self.new_modem_1_TX_ch_num}, rx1 - {self.new_modem_1_RX_ch_num}, tx2 - {self.new_modem_2_TX_ch_num}, rx2 - {self.new_modem_2_RX_ch_num}")
                 print("Процесс симуляции продолжается со старыми значениями параметров канала")
-                self.ampl_mult = [0, 1]
-                self.en_noise = [1, 0]
-                restart_channels = (1,0)
-                self.start_sim(channel_number, restart_channels)
+                if not self.ch1_noise_already_on:
+                    self.ampl_mult = [0, 1]
+                    self.en_noise = [1, 0]
+                    restart_channels = (1,0)
+                    self.start_sim(channel_number, restart_channels)
+                    self.ch1_noise_already_on = True
                 self.t1 = datetime.datetime.now()
                 self.data_to_send = self.data_to_read
                 self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
@@ -288,8 +304,13 @@ class ServerHandler(Thread):
                 print(f"Выбранный канал: {channel_number}")
                 print("Первый слышит второго, второй не слышит первого")
                 print(f"Комбинация номеров каналов: tx1 - {self.new_modem_1_TX_ch_num}, rx1 - {self.new_modem_1_RX_ch_num}, tx2 - {self.new_modem_2_TX_ch_num}, rx2 - {self.new_modem_2_RX_ch_num}")
-                restart_channels = (1,1)  # Рестартим оба канала, т.к. в канале с несовпадающими номерами каналов должен генерироваться белый шум
+                if not self.ch1_noise_already_on:
+                    restart_channels = (1,1)  # Рестартим оба канала, т.к. в канале с несовпадающими номерами каналов должен генерироваться белый шум
+                    self.ch1_noise_already_on = True
+                else:
+                    restart_channels = (0,1)
                 self.start_sim(channel_number, restart_channels)
+                self.ch2_noise_already_on = False
                 self.t1 = datetime.datetime.now()
                 self.data_to_send = self.data_to_read
                 self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
@@ -309,6 +330,8 @@ class ServerHandler(Thread):
                 print("Процесс симуляции остановлен!\n")
                 restart_channels = (1,1)  # Рестартим оба канала, т.к. в канале с несовпадающими номерами каналов должен генерироваться белый шум
                 self.start_sim(channel_number, restart_channels)
+                self.ch1_noise_already_on = True
+                self.ch2_noise_already_on = True
                 self.t1 = datetime.datetime.now()
                 self.data_to_send = self.data_to_read
                 self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)

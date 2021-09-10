@@ -35,7 +35,7 @@ class ch2_simulation(gr.top_block):
         ##################################################
         # Variables
         ##################################################
-        self.snr = snr = 40
+        self.snr = snr = 10
         self.vol = vol = 1
         self.tau_a = tau_a = 1/100.
         self.tau = tau = 0.002
@@ -43,7 +43,7 @@ class ch2_simulation(gr.top_block):
         self.samp_rate_0 = samp_rate_0 = 48000
         self.samp_rate = samp_rate = 48000
         self.out_rms_func = out_rms_func = 0
-        self.noSpread = noSpread = 1
+        self.noSpread = noSpread = 0
         self.kN = kN = pow(10.0, (-snr/20.0))
         self.freqShift = freqShift = 0.0
         self.fd = fd = 1
@@ -361,7 +361,7 @@ def main(top_block_cls=ch2_simulation, options=None):
     signal.signal(signal.SIGINT, sig_handler)
     signal.signal(signal.SIGTERM, sig_handler)
 
-    tb.start()
+    tb.start(2400)
 
     tb.wait()
 

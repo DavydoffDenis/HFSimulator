@@ -35,7 +35,7 @@ class ch1_simulation(gr.top_block):
         ##################################################
         # Variables
         ##################################################
-        self.snr = snr = 40
+        self.snr = snr = 10
         self.vol = vol = 1
         self.tau_a = tau_a = 1/100.
         self.tau = tau = 0.002
@@ -365,7 +365,7 @@ def main(top_block_cls=ch1_simulation, options=None):
     signal.signal(signal.SIGINT, sig_handler)
     signal.signal(signal.SIGTERM, sig_handler)
 
-    tb.start()
+    tb.start(2400)
 
     tb.wait()
 

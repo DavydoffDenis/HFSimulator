@@ -123,50 +123,45 @@ class Parameters:
             self.ch1_sim_t.wait()
             self.ch2_sim_t.wait()
             #time.sleep(2)
-            self.ch1_sim_t.start()
-            self.ch2_sim_t.start()
+            self.ch1_sim_t.start(Nbuf)
+            self.ch2_sim_t.start(Nbuf)
         elif self.ch1_restart == True:
             self.ch1_sim_t.stop()
             self.ch1_sim_t.wait()
-            self.ch1_sim_t.start()
+            self.ch1_sim_t.start(Nbuf)
         elif self.ch2_restart == True:
             self.ch2_sim_t.stop()
             self.ch2_sim_t.wait()
-            self.ch2_sim_t.start()
+            self.ch2_sim_t.start(Nbuf)
 
     def start_sim(self):
 #         print(self.ampl1, self.ampl2, self.tau, self.dop_shift, self.dop_fd, self.snr)
         if self.ch1_restart == self.ch2_restart == True:
-            self.ch1_sim_t.kN = pow(10.0, (-self.snr / 20.0))
-            self.ch2_sim_t.kN = pow(10.0, (-self.snr / 20.0))        
-            
-            self.ch1_sim_t.set_ampl([[self.ampl1, self.ampl2], [self.ampl1, self.ampl2]])
-            self.ch2_sim_t.set_ampl([[self.ampl1, self.ampl2], [self.ampl1, self.ampl2]])
-            
-            self.ch1_sim_t.set_tau(self.tau)
-            self.ch2_sim_t.set_tau(self.tau)
+            self.Nbuf = int(self.latency*self.samp_rate)
 
+            self.ch1_sim_t.kN = pow(10.0, (-self.snr / 20.0))
+            self.ch1_sim_t.set_ampl([[self.ampl1, self.ampl2], [self.ampl1, self.ampl2]])
+            self.ch1_sim_t.set_tau(self.tau)
             self.ch1_sim_t.set_freqShift(self.dop_shift)
+            self.ch1_sim_t.set_fd(self.dop_fd)
+            self.ch1_sim_t.set_snr(self.snr)
+            self.ch1_sim_t.set_vol(self.on_off_out1)
+            self.ch1_sim_t.set_en_noise(self.ch1_en_silence_noise)
+            self.ch1_sim_t.start(self.Nbuf)
+
+            self.ch2_sim_t.kN = pow(10.0, (-self.snr / 20.0))        
+            self.ch2_sim_t.set_ampl([[self.ampl1, self.ampl2], [self.ampl1, self.ampl2]])
+            self.ch2_sim_t.set_tau(self.tau)
             self.ch2_sim_t.set_freqShift(self.dop_shift)
+            self.ch2_sim_t.set_fd(self.dop_fd)
+            self.ch2_sim_t.set_snr(self.snr)
+            self.ch2_sim_t.set_vol(self.on_off_out2)
+            self.ch2_sim_t.set_en_noise(self.ch2_en_silence_noise)
+            self.ch2_sim_t.start(self.Nbuf)
             
     #         (k, dopplerIR) = self.calc_doppler_ir(self.dop_fd)
     #         self.sim_t.set_doppler_ir(list(map(lambda x: x / k, dopplerIR)) )
-
-            self.ch1_sim_t.set_fd(self.dop_fd)
-            self.ch2_sim_t.set_fd(self.dop_fd)
-        
-            self.ch1_sim_t.set_snr(self.snr)
-            self.ch2_sim_t.set_snr(self.snr)
-
-            self.ch1_sim_t.set_vol(self.on_off_out1)
-            self.ch2_sim_t.set_vol(self.on_off_out2)
             
-            self.ch1_sim_t.set_en_noise(self.ch1_en_silence_noise)
-            self.ch2_sim_t.set_en_noise(self.ch2_en_silence_noise)
-            
-            self.Nbuf = int(self.latency*self.samp_rate)
-            self.ch1_sim_t.start()
-            self.ch2_sim_t.start()
             if self.dop_fd == 0:
                 self.ch1_sim_t.set_noSpread(1)
                 self.ch2_sim_t.set_noSpread(1)
@@ -189,7 +184,7 @@ class Parameters:
             self.ch1_sim_t.set_vol(self.on_off_out1)
             self.ch1_sim_t.set_en_noise(self.ch1_en_silence_noise)
             self.Nbuf = int(self.latency*self.samp_rate)
-            self.ch1_sim_t.start()
+            self.ch1_sim_t.start(self.Nbuf)
             if self.dop_fd == 0:
                 self.ch1_sim_t.set_noSpread(1)
     #             print('Nospread selected')
@@ -209,7 +204,7 @@ class Parameters:
             self.ch2_sim_t.set_vol(self.on_off_out1)
             self.ch2_sim_t.set_en_noise(self.ch1_en_silence_noise)
             self.Nbuf = int(self.latency*self.samp_rate)
-            self.ch2_sim_t.start()
+            self.ch2_sim_t.start(self.Nbuf)
             if self.dop_fd == 0:
                 self.ch2_sim_t.set_noSpread(1)
     #             print('Nospread selected')
