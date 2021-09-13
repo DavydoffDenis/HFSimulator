@@ -328,8 +328,15 @@ class ServerHandler(Thread):
                 print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
                 print(f"Недопустимая комбинация номеров каналов: tx1 - {self.new_modem_1_TX_ch_num}, rx1 - {self.new_modem_1_RX_ch_num}, tx2 - {self.new_modem_2_TX_ch_num}, rx2 - {self.new_modem_2_RX_ch_num}")
                 print("Процесс симуляции остановлен!\n")
-                restart_channels = (1,1)  # Рестартим оба канала, т.к. в канале с несовпадающими номерами каналов должен генерироваться белый шум
-                self.start_sim(channel_number, restart_channels)
+                if self.ch1_noise_already_on == self.ch2_noise_already_on == False:
+                    restart_channels = (1,1)
+                    self.start_sim(channel_number, restart_channels)
+                elif self.ch1_noise_already_on == False:
+                    restart_channels = (1,0)
+                    self.start_sim(channel_number, restart_channels)
+                elif self.ch2_noise_already_on == False:
+                    restart_channels = (0,1)
+                    self.start_sim(channel_number, restart_channels)
                 self.ch1_noise_already_on = True
                 self.ch2_noise_already_on = True
                 self.t1 = datetime.datetime.now()
@@ -338,7 +345,6 @@ class ServerHandler(Thread):
 #                 conn.send(self.data_to_read)
 #                 if self.sim_handler.flow_graph_is_running == True:
 #                     self.sim_handler.stop_sim()  # Останавливаем симуляцию для переконфигурирования симулятора
-        
     def run(self):
         try:
             while True:

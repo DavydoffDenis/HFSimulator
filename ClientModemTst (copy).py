@@ -29,7 +29,7 @@ try:
         print("received:", rec)
         reception_channel_number += 1
         # transmission_channel_number -= 1
-        time.sleep(1.35)
+        time.sleep(13)
         # data = []
         # data.append(address)
         # data.append(transmission_channel_number1)
