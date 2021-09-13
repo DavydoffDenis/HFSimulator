@@ -27,8 +27,8 @@ class Parameters:
         self.rms = None  # Измеряемое в канале среднеквадратическое отклонение
         self.on_off_out1 = None  # Атрибут отвечает за присутствие или отсутствие выхода 1
         self.on_off_out2 = None  # Атрибут отвечает за присутствие или отсутствие выхода 2
-        self.ch1_en_silence_noise = None  # Включает шум на выходе первого канала когда канал выключен для глушения пролазов
-        self.ch2_en_silence_noise = None  # Включает шум на выходе второго канала когда канал выключен для глушения пролазов
+        # self.ch1_en_silence_noise = None  # Включает шум на выходе первого канала когда канал выключен для глушения пролазов
+        # self.ch2_en_silence_noise = None  # Включает шум на выходе второго канала когда канал выключен для глушения пролазов
     
         self.ch1_flow_graph_is_running = None  # Показывает, запущен ли поток симуляции первого канала
         self.ch2_flow_graph_is_running = None  # Показывает, запущен ли поток симуляции второго канала
@@ -232,14 +232,15 @@ class Parameters:
 #         self.statusBar().showMessage("Адаптация по частоте включена...")
         
 
-    def stop_sim(self):
-        if self.ch1_restart == self.ch2_restart == True:
+    def stop_sim(self, force_stop = False):
+        if self.ch1_restart == self.ch2_restart == True or force_stop == True:
             self.ch1_sim_t.stop()
             self.ch2_sim_t.stop()
             self.ch1_sim_t.wait()
             self.ch2_sim_t.wait()
             #del self.sim_t
             self.ch1_flow_graph_is_running = False  # Выставляем флаг, сигнализирующий о том, что поток симуляции канала остановлен
+            self.ch2_flow_graph_is_running = False  # Выставляем флаг, сигнализирующий о том, что поток симуляции канала остановлен
         if self.ch1_restart == True:
             self.ch1_sim_t.stop()
             self.ch1_sim_t.wait()
@@ -250,4 +251,3 @@ class Parameters:
             self.ch2_sim_t.wait()
             #del self.sim_t
             self.ch2_flow_graph_is_running = False  # Выставляем флаг, сигнализирующий о том, что поток симуляции канала остановлен
-

@@ -26,6 +26,6 @@ try:
         rec = modem2.recv(3)
         print("received:", rec)
         reception_channel_number += 1
-        time.sleep(1.35)
+        time.sleep(3)
 finally:
     modem2.close()

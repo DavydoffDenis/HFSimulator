@@ -565,7 +565,7 @@ class UserInterface(QMainWindow):
     def start_stop_button_handler(self):
         if self.gr_box3_fixed_freq_mode.isChecked():  # Если выбран режим фиксированной частоты
             if self.sim_handler.ch1_flow_graph_is_running and self.sim_handler.ch2_flow_graph_is_running:
-                self.sim_handler.stop_sim()  # Остановка симуляции в режиме фиксированной частоты
+                self.sim_handler.stop_sim(1)  # Остановка симуляции в режиме фиксированной частоты
                 print("Поток выполнения остановлен\n")
                 self.statusBar().showMessage("Поток выполнения остановлен")
                 self.btn2_start_stop.setText("Запустить симуляцию канала")
@@ -668,5 +668,3 @@ class OutputLogger(QObject):
     
     def write(self, text):
         self.emit_write.emit(str(text))
-        
-        
