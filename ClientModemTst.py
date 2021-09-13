@@ -4,7 +4,7 @@ import sys
 import time
 
 address = 12
-reception_channel_number = 1
+reception_channel_number = 10
 transmission_channel_number = 8
 
 # print('Address: {} RX: {} TX: {}'.format(address, reception_channel_number, \

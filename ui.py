@@ -508,8 +508,9 @@ class UserInterface(QMainWindow):
         self.sim_handler.ch1_en_silence_noise = 0
         self.sim_handler.ch2_en_silence_noise = 0
         
-        self.sim_handler.start_sim()  # Запуск симуляции канала
-        
+        self.sim_handler.ch1_start_sim()  # Запуск симуляции канала
+        self.sim_handler.ch2_start_sim()
+
         # Производим операции необходимые для измерения 
         timer_callback = functools.partial(self.get_parameters_from_flow_graph, obj = self.sim_handler)
         self.timer = QTimer()
@@ -565,7 +566,8 @@ class UserInterface(QMainWindow):
     def start_stop_button_handler(self):
         if self.gr_box3_fixed_freq_mode.isChecked():  # Если выбран режим фиксированной частоты
             if self.sim_handler.ch1_flow_graph_is_running and self.sim_handler.ch2_flow_graph_is_running:
-                self.sim_handler.stop_sim(1)  # Остановка симуляции в режиме фиксированной частоты
+                self.sim_handler.ch1_stop_sim()  # Остановка симуляции в режиме фиксированной частоты
+                self.sim_handler.ch2_stop_sim()
                 print("Поток выполнения остановлен\n")
                 self.statusBar().showMessage("Поток выполнения остановлен")
                 self.btn2_start_stop.setText("Запустить симуляцию канала")
@@ -617,42 +619,13 @@ class UserInterface(QMainWindow):
     def switch_off_on_out(self):
         self.btn3_sw_off.setText("Включить выходной сигнал")
         self.sim_handler.off_out = True
-        
-    '''        
-        if self.sim_handler:
-            if self.sim_handler.flow_graph_is_running:
-                if self.gr_box3_fixed_freq_mode.isChecked():
-                    self.sim_handler.stop_sim()  # Остановка симуляции в режиме фиксированной частоты
-                elif self.gr_box4_freq_adapt_mode.isChecked():
-                    self.adapt_t.stop()
-                self.statusBar().showMessage("Поток выполнения остановлен.")
-                self.btn2_start_stop.setText("Запустить симуляцию канала")
-                self.lbl7_snr.setText(" 00.00")
-                self.gr_box3_fixed_freq_mode.setEnabled(True)  # Разблокировывает редактироватие параметров после остановки симуляции
-                self.gr_box4_freq_adapt_mode.setEnabled(True)
-            elif not self.sim_handler.flow_graph_is_running:
-                if self.gr_box3_fixed_freq_mode.isChecked():                       
-                    self.start_sim_in_fixed_mode()
-        else:                     
-            if self.gr_box3_fixed_freq_mode.isChecked():  # Стаарт симуляции в режиме фиксированной частоты
-                self.sim_handler = parameters_handler.Parameters()  # Создаем экземпляр класса обслуживающего поток симуляции
-                self.start_sim_in_fixed_mode()
-                
-            elif self.gr_box4_freq_adapt_mode.isChecked():  # Старт симуляции в режиме адаптации по частоте
-                self.adapt_t = async_server.ServerThread("localhost", self.tcp_port)  # Создаем поток для адаптации по частоте
-                self.adapt_t.start()
-                self.statusBar().showMessage("Адаптация по частоте включена...")
-    '''
+
     def signals(self):               
         self.gr_box3_fixed_freq_mode.toggled.connect(self.fixed_sel)  # Обработка сигнала выбора режима фикс. частоты
         self.btn1_setup.clicked.connect(self.set_new_channels)  # Обработка сигнала нажатия на кнопку для загрузки новых параметров
         self.gr_box4_freq_adapt_mode.toggled.connect(self.adapt_sel)  # Обработка сигнала выбора режима адапт. частоты
         #self.gr_box4_freq_adapt_mode.toggled.connect(self.adapt_sel())  # Обработка сигнала выбора режима адаптации по частоте
         self.btn2_start_stop.clicked.connect(self.start_stop_button_handler)  # Обработка сигнала нажатия на кнопку старт-стоп
-        
-#         self.btn1_setup.clicked.connect(self.set_new_channels)  # Обработка сигнала нажатия на кнопку для загрузки новых параметров
-        
-        #self.btn3_sw_off.clicked.connect(self.switch_off_out)
     
     def append_log(self, text):
         """Append text to the QTextEdit."""

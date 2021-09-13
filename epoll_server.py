@@ -57,9 +57,9 @@ class ServerHandler(Thread):
         self.sim_handler.ch1_restart = restart_channels[0]
         self.sim_handler.ch2_restart = restart_channels[1]
         if self.sim_handler.ch1_flow_graph_is_running and restart_channels[0] == True:
-            self.sim_handler.stop_sim()  # Останавливаем симуляцию для переконфигурирования симулятора
+            self.sim_handler.ch1_stop_sim()  # Останавливаем симуляцию для переконфигурирования симулятора
         if self.sim_handler.ch2_flow_graph_is_running and restart_channels[1] == True:
-            self.sim_handler.stop_sim()  # Останавливаем симуляцию для переконфигурирования симулятора
+            self.sim_handler.ch2_stop_sim()  # Останавливаем симуляцию для переконфигурирования симулятора
         self.sim_handler.ampl1 = self.ampl1  # Амплитуда первого луча
         self.sim_handler.ampl2 = self.ampl2  # Амплитуда второго луча
         self.sim_handler.tau = self.tau * 0.001  # Задержка второго луча относительно первого
@@ -70,8 +70,14 @@ class ServerHandler(Thread):
         self.sim_handler.on_off_out2 = self.ampl_mult[1]
         self.sim_handler.ch1_en_silence_noise = self.en_noise[0]
         self.sim_handler.ch2_en_silence_noise = self.en_noise[1]
-        self.sim_handler.start_sim()  # Запуск симуляции канала
-        
+        if restart_channels[0] == restart_channels[1] == True:
+            self.sim_handler.ch1_start_sim()  # Запуск симуляции канала
+            self.sim_handler.ch2_start_sim()
+        elif restart_channels[0] == True:
+            self.sim_handler.ch1_start_sim()
+        elif restart_channels[1] == True:
+            self.sim_handler.ch2_start_sim()
+
     def read_data_handler(self, fileno):
         if self.t1:
             self.t2 = datetime.datetime.now()
@@ -374,7 +380,8 @@ class ServerHandler(Thread):
                             
                 if self.stop_server_flag == True:  # Останавливаем адаптацию по частоте при выставлении флага (по нажатию на кнопку "остановить симуляцию")
                     print("Сервер остановлен\n")
-                    self.sim_handler.stop_sim(1)
+                    self.sim_handler.ch1_stop_sim()
+                    self.sim_handler.ch2_stop_sim()
                     self.modem_1_RX_ch_num = -1  # Сбрасываем значения номеров каналов после остановки сервера
                     self.modem_1_TX_ch_num = -1
                     self.modem_2_RX_ch_num = -1
@@ -425,14 +432,16 @@ class ServerHandler(Thread):
                 time.sleep(0.01)  # Задержка, облегчающая работу процессору, не удалять!!!
         except SystemExit:
             if self.server_is_running:
-                self.sim_handler.stop_sim(1)
+                self.sim_handler.ch1_stop_sim()
+                self.sim_handler.ch2_stop_sim()
                 self.epoll.unregister(serversocket.fileno())
                 self.epoll.close()
                 serversocket.close()
                 self.server_is_running = False
         finally:
             if self.server_is_running:
-                self.sim_handler.stop_sim(1)
+                self.sim_handler.ch1_stop_sim()
+                self.sim_handler.ch2_stop_sim()
                 self.epoll.unregister(serversocket.fileno())
                 self.epoll.close()
                 serversocket.close()
