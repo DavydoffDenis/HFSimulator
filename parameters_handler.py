@@ -16,6 +16,8 @@ class Parameters:
         self.ch1_sim_t = ch1_sim_t     
         self.ch2_sim_t = ch2_sim_t
         
+        self.ch1_first_start = True  # Индикатор того, нужно ли перезапускать имитатор для изменения рассеивания доплера
+        self.ch2_first_start = True
         self.ampl1 = None  # Амплитуда первого луча
         self.ampl2 = None  # Амплитуда второго луча
         self.tau = None  # Задержка второго луча относительно первого
@@ -63,6 +65,8 @@ class Parameters:
         return self.ch2_sim_t.get_out_rms_func()
 
     def ch1_start_sim(self):
+        self.ch1_sim_t.stop()
+        self.ch1_sim_t.wait()
         self.Nbuf = int(self.latency*self.samp_rate)
         self.ch1_sim_t.kN = pow(10.0, (-self.snr / 20.0))
         self.ch1_sim_t.set_ampl([[self.ampl1, self.ampl2], [self.ampl1, self.ampl2]])
@@ -72,17 +76,27 @@ class Parameters:
         self.ch1_sim_t.set_snr(self.snr)
         self.ch1_sim_t.set_vol(self.on_off_out1)
         self.ch1_sim_t.set_en_noise(self.ch1_en_silence_noise)
-        self.ch1_sim_t.start(self.Nbuf)
-        if self.dop_fd == 0:
-            self.ch1_sim_t.set_noSpread(1)
+        if self.ch1_first_start:
+            self.ch1_sim_t.start(self.Nbuf)
+            if self.dop_fd == 0:
+                self.ch1_sim_t.set_noSpread(1)
+            else:
+                self.ch1_sim_t.set_noSpread(0)
+            self.ch1_sim_t.stop()
+            self.ch1_sim_t.wait()
+            self.ch1_sim_t.start(self.Nbuf)
         else:
-            self.ch1_sim_t.set_noSpread(0)
-        self.ch1_sim_t.stop()
-        self.ch1_sim_t.wait()
-        self.ch1_sim_t.start(self.Nbuf)
+            if self.dop_fd == 0:
+                self.ch1_sim_t.set_noSpread(1)
+            else:
+                self.ch1_sim_t.set_noSpread(0)
+            self.ch1_sim_t.start(self.Nbuf)
         self.ch1_flow_graph_is_running = True  # Выставляем флаг, сигнализирующий о том, что поток симуляции канала запущен
+        self.ch1_first_start = False
 
     def ch2_start_sim(self):
+        self.ch2_sim_t.stop()
+        self.ch2_sim_t.wait()
         self.Nbuf = int(self.latency*self.samp_rate)
         self.ch2_sim_t.kN = pow(10.0, (-self.snr / 20.0))
         self.ch2_sim_t.set_ampl([[self.ampl1, self.ampl2], [self.ampl1, self.ampl2]])
@@ -93,17 +107,23 @@ class Parameters:
         self.ch2_sim_t.set_vol(self.on_off_out2)
         self.ch2_sim_t.set_en_noise(self.ch2_en_silence_noise)
         self.Nbuf = int(self.latency*self.samp_rate)
-        self.ch2_sim_t.start(self.Nbuf)
-        if self.dop_fd == 0:
-            self.ch2_sim_t.set_noSpread(1)
-#             print('Nospread selected')
+        if self.ch2_first_start:
+            self.ch2_sim_t.start(self.Nbuf)
+            if self.dop_fd == 0:
+                self.ch2_sim_t.set_noSpread(1)
+            else:
+                self.ch2_sim_t.set_noSpread(0)
+            self.ch2_sim_t.stop()
+            self.ch2_sim_t.wait()
+            self.ch2_sim_t.start(self.Nbuf)
         else:
-            self.ch2_sim_t.set_noSpread(0)
-#             print('Spread selected')
-        self.ch2_sim_t.stop()
-        self.ch2_sim_t.wait()
-        self.ch2_sim_t.start(self.Nbuf)
+            if self.dop_fd == 0:
+                self.ch2_sim_t.set_noSpread(1)
+            else:
+                self.ch2_sim_t.set_noSpread(0)
+            self.ch2_sim_t.start(self.Nbuf)
         self.ch2_flow_graph_is_running = True  # Выставляем флаг, сигнализирующий о том, что поток симуляции канала запущен
+        self.ch2_first_start = False
 
     def ch1_stop_sim(self):
         self.ch1_sim_t.stop()
