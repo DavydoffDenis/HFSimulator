@@ -63,6 +63,8 @@ class Parameters:
         return self.ch2_sim_t.get_out_rms_func()
 
     def ch1_start_sim(self):
+        self.ch1_sim_t.stop()
+        self.ch1_sim_t.wait()
         self.Nbuf = int(self.latency*self.samp_rate)
         self.ch1_sim_t.kN = pow(10.0, (-self.snr / 20.0))
         self.ch1_sim_t.set_ampl([[self.ampl1, self.ampl2], [self.ampl1, self.ampl2]])
@@ -81,9 +83,12 @@ class Parameters:
         self.ch1_sim_t.stop()
         self.ch1_sim_t.wait()
         self.ch1_sim_t.start(self.Nbuf)
+        
         self.ch1_flow_graph_is_running = True  # Выставляем флаг, сигнализирующий о том, что поток симуляции канала запущен
 
     def ch2_start_sim(self):
+        self.ch2_sim_t.stop()
+        self.ch2_sim_t.wait()
         self.Nbuf = int(self.latency*self.samp_rate)
         self.ch2_sim_t.kN = pow(10.0, (-self.snr / 20.0))
         self.ch2_sim_t.set_ampl([[self.ampl1, self.ampl2], [self.ampl1, self.ampl2]])
@@ -97,14 +102,13 @@ class Parameters:
         self.ch2_sim_t.start(self.Nbuf)
         if self.dop_fd == 0:
             self.ch2_sim_t.set_noSpread(1)
-#             print('Nospread selected')
         else:
             self.ch2_sim_t.set_noSpread(0)
-#             print('Spread selected')
         time.sleep(0.01)
         self.ch2_sim_t.stop()
         self.ch2_sim_t.wait()
         self.ch2_sim_t.start(self.Nbuf)
+        
         self.ch2_flow_graph_is_running = True  # Выставляем флаг, сигнализирующий о том, что поток симуляции канала запущен
 
     def ch1_stop_sim(self):
