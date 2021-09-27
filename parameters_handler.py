@@ -4,7 +4,7 @@ Created on Jul 2, 2020
 @author: user
 '''
 from math import log, sqrt, exp, pi
-
+import time
 
 class Parameters:
     '''
@@ -87,7 +87,7 @@ class Parameters:
         
         
         self.sim_t.set_ampl([[self.ampl1, self.ampl2], [self.ampl1, self.ampl2]])
-        self.sim_t.set_tau(self.tau)
+        self.sim_t.set_tau(self.tau)  
         self.sim_t.set_freqShift(self.dop_shift)
         
 #         (k, dopplerIR) = self.calc_doppler_ir(self.dop_fd)
@@ -106,6 +106,7 @@ class Parameters:
         else:
             self.sim_t.set_noSpread(0)
 #             print('Spread selected')
+        time.sleep(0.01)  # Задержка, облегчающая работу процессору, не удалять!!!
         self.restart(self.Nbuf)
         
         self.flow_graph_is_running = True  # Выставляем флаг, сигнализирующий о том, что поток симуляции канала запущен
