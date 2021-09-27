@@ -4,7 +4,7 @@ Created on Jul 2, 2020
 @author: user
 '''
 from math import log, sqrt, exp, pi
-
+import time
 
 class Parameters:
     '''
@@ -77,6 +77,7 @@ class Parameters:
             self.ch1_sim_t.set_noSpread(1)
         else:
             self.ch1_sim_t.set_noSpread(0)
+        time.sleep(0.01)
         self.ch1_sim_t.stop()
         self.ch1_sim_t.wait()
         self.ch1_sim_t.start(self.Nbuf)
@@ -100,6 +101,7 @@ class Parameters:
         else:
             self.ch2_sim_t.set_noSpread(0)
 #             print('Spread selected')
+        time.sleep(0.01)
         self.ch2_sim_t.stop()
         self.ch2_sim_t.wait()
         self.ch2_sim_t.start(self.Nbuf)
