@@ -41,19 +41,19 @@ class UserInterface(QMainWindow):
         lbl1_beams = QLabel("Амплитуда")
         lbl2_beams = QLabel("Первый луч:")
         lbl3_beams = QLabel("Второй луч:")
-        lbl4_beams = QLabel("Временной сдвиг:")
+        lbl4_beams = QLabel("Задержка между лучами:")
         lbl5_beams = QLabel("мс")
         
         lbl6_beams = QLabel("Амплитуда первого луча:")
         lbl7_beams = QLabel("Амплитуда второго луча:")
         self.lbl8_beams = QLabel("-")
         self.lbl9_beams = QLabel("-")
-        lbl10_beams = QLabel("Временной сдвиг между лучами:")
+        lbl10_beams = QLabel("Задержка между лучами:")
         self.lbl11_beams = QLabel("-")
         lbl12_beams = QLabel("мс")
 
         lbl1_doppler = QLabel("Доплеровский сдвиг:")
-        lbl2_doppler = QLabel("Доп. рассеивание:")
+        lbl2_doppler = QLabel("Доплеровское  уширение:")
         lbl3_doppler = QLabel("Гц")
         lbl4_doppler = QLabel("Гц")
         
@@ -64,7 +64,7 @@ class UserInterface(QMainWindow):
         lbl9_doppler = QLabel("Гц")
         lbl10_doppler = QLabel("Гц")
 
-        lbl1_snr = QLabel("Отношение сигнал/шум")
+        lbl1_snr = QLabel("ОСШ")
         lbl2_snr = QLabel("дБ")
         
         lbl3_snr = QLabel("ОСШ установленное:")
@@ -100,7 +100,7 @@ class UserInterface(QMainWindow):
         lbl17_about = QLabel()
         pixmap = QPixmap("polet.png")
         lbl17_about.setPixmap(pixmap)
-        lbl18_about = QLabel("Версия: 1.72")
+        lbl18_about = QLabel("Версия: 1.73")
         lbl19_about = QLabel("Авторы проекта: Алексей Львов, Денис Давыдов")
         lbl20_about = QLabel('АО "НПП "Полет", 2019-2021 г.')
         
@@ -177,7 +177,7 @@ class UserInterface(QMainWindow):
         self.str1_serv_addr.setMaxLength(15)
         
         self.btn1_setup = QPushButton("Загрузить новый набор частотных каналов")  # Кнопка, отвечающая за загрузку файла с параметрами каналов
-        self.btn2_start_stop = QPushButton("Запустить симуляцию канала")  # Позволяет включать и выключать поток симуляции канала 
+        self.btn2_start_stop = QPushButton("Начать симуляцию")  # Позволяет включать и выключать поток симуляции канала 
         self.btn2_start_stop.setDisabled(True)
         # self.btn3_sw_off = QPushButton("Отключить выходной сигнал")
         
@@ -391,23 +391,19 @@ class UserInterface(QMainWindow):
         self.about_window.show()
             
     def fixed_sel(self):
-        
-        if self.gr_box3_fixed_freq_mode.isChecked():
-            
-                    
+        if self.gr_box3_fixed_freq_mode.isChecked():                  
             self.btn2_start_stop.setDisabled(False)
-            self.btn2_start_stop.setText("Запустить симуляцию в режиме фиксированной частоты")
+            self.btn2_start_stop.setText("Начать симуляцию")
             self.gr_box4_freq_adapt_mode.setChecked(False)  # Для взаимоисключения одновременной работы в обоих режимах
         else:
             #self.btn2_start_stop.setDisabled(True)
             self.gr_box4_freq_adapt_mode.setChecked(True)  # Для взаимоисключения одновременной работы в обоих режимах
             
     def adapt_sel(self):
-        
         if self.gr_box4_freq_adapt_mode.isChecked():
             
             self.btn2_start_stop.setDisabled(False)
-            self.btn2_start_stop.setText("Запустить симуляцию в режиме адаптации по частоте")
+            self.btn2_start_stop.setText("Начать симуляцию")
             self.gr_box3_fixed_freq_mode.setChecked(False)  # Для взаимоисключения одновременной работы в обоих режимах
         else:
             #self.btn2_start_stop.setDisabled(True)
@@ -519,31 +515,9 @@ class UserInterface(QMainWindow):
         self.timer.start(100)
         
         self.statusBar().showMessage("Поток выполнения запущен в режиме фиксированной частоты.")
-        self.btn2_start_stop.setText("Остановить симуляцию канала")
+        self.btn2_start_stop.setText("Остановить симуляцию")
         self.gr_box3_fixed_freq_mode.setEnabled(False)  # Блокирует редактирование параметров во время симуляции
         self.gr_box4_freq_adapt_mode.setEnabled(False)
-    
-#     def preemptive_start_for_b(self):
-#         # Функция запускает симулятор на 1-м канале до установления соединения
-#         # Присваиваем экземпляру self.sim_handler выбранные параметры 
-#              
-#         self.sim_handler.ampl1 = 1.0  # Амплитуда первого луча
-#         self.sim_handler.ampl2 = 1.0  # Амплитуда второго луча
-#         self.sim_handler.tau = 1.0 * 1e-3  # Задержка второго луча относительно первого
-#         self.sim_handler.dop_shift = 0.0  # Доплеровский сдвиг частоты
-#         self.sim_handler.dop_fd = 0.0  # Доплеровское уширение (рассеивание)
-#         self.sim_handler.snr = 40.0  # Отношение сигнал-шум
-#         
-#         self.sim_handler.on_off_out1 = 1.0
-#         self.sim_handler.on_off_out2 = 1.0
-#         
-#         self.sim_handler.start_sim()  # Запуск симуляции канала
-#         
-#         # Производим операции необходимые для измерения 
-#         self.timer = QTimer()
-#         self.timer.setSingleShot(False)
-#         self.timer.timeout.connect(self.update_meas)
-#         self.timer.start(100)
     
     def setup_sim_in_adapt_mode(self):
         with open("address.cfg", "w") as address_file:
@@ -570,7 +544,7 @@ class UserInterface(QMainWindow):
                 self.sim_handler.ch2_stop_sim()
                 print("Поток выполнения остановлен\n")
                 self.statusBar().showMessage("Поток выполнения остановлен")
-                self.btn2_start_stop.setText("Запустить симуляцию канала")
+                self.btn2_start_stop.setText("Начать симуляцию")
                 self.gr_box3_fixed_freq_mode.setEnabled(True)  # Разблокировывает редактироватие параметров после остановки симуляции
                 self.gr_box4_freq_adapt_mode.setEnabled(True)
             elif not (self.sim_handler.ch1_flow_graph_is_running and self.sim_handler.ch2_flow_graph_is_running):
@@ -579,7 +553,7 @@ class UserInterface(QMainWindow):
                 self.start_sim_in_fixed_mode()
                 print("Поток выполнения запущен в режиме фиксированной частоты\n")
                 self.statusBar().showMessage("Поток выполнения запущен в режиме фиксированной частоты.")
-                self.btn2_start_stop.setText("Остановить симуляцию канала")
+                self.btn2_start_stop.setText("Остановить симуляцию")
                 self.gr_box3_fixed_freq_mode.setEnabled(False)  # Блокирует редактирование параметров во время симуляции
                 self.gr_box4_freq_adapt_mode.setEnabled(False)
         elif self.gr_box4_freq_adapt_mode.isChecked():  # Если выбран режим адаптации по частоте
@@ -588,14 +562,14 @@ class UserInterface(QMainWindow):
                     self.setup_sim_in_adapt_mode()  # Записываем изменившиеся параметры из пользовательского интерфейса, если таковые имеются
                     self.adapt_mode.stop_server_flag = False
                     self.statusBar().showMessage("Поток выполнения запущен в режиме адаптации по частоте")
-                    self.btn2_start_stop.setText("Остановить симуляцию канала")
+                    self.btn2_start_stop.setText("Остановить симуляцию")
                     self.gr_box3_fixed_freq_mode.setEnabled(False)  # Блокирует редактирование параметров во время симуляции
                     self.gr_box4_freq_adapt_mode.setEnabled(False)
                 else:  # Если нет, то ставим сервер на паузу
                     self.adapt_mode.stop_server_flag = True
                     print("Поток выполнения остановлен\n")
                     self.statusBar().showMessage("Поток выполнения остановлен")
-                    self.btn2_start_stop.setText("Запустить симуляцию канала")
+                    self.btn2_start_stop.setText("Начать симуляцию")
                     self.gr_box3_fixed_freq_mode.setEnabled(True)  # Разблокировывает редактироватие параметров после остановки симуляции
                     self.gr_box4_freq_adapt_mode.setEnabled(True)
             else:
@@ -612,7 +586,7 @@ class UserInterface(QMainWindow):
                 self.timer.start(100)
                 
                 self.statusBar().showMessage("Поток выполнения запущен в режиме адаптации по частоте")
-                self.btn2_start_stop.setText("Остановить симуляцию канала")
+                self.btn2_start_stop.setText("Остановить симуляцию")
                 self.gr_box3_fixed_freq_mode.setEnabled(False)  # Блокирует редактирование параметров во время симуляции
                 self.gr_box4_freq_adapt_mode.setEnabled(False)
 
