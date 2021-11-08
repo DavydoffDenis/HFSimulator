@@ -1,7 +1,6 @@
 options:
   parameters:
     author: Davydov Denis
-    catch_exceptions: 'True'
     category: '[GRC Hier Blocks]'
     cmake_opt: ''
     comment: ''
@@ -23,6 +22,7 @@ options:
     sizing_mode: fixed
     thread_safe_setters: ''
     title: HF channel simulation
+    window_size: (1000,1000)
   states:
     bus_sink: false
     bus_source: false
@@ -142,7 +142,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '0'
+    value: '1'
   states:
     bus_sink: false
     bus_source: false
@@ -182,7 +182,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '40'
+    value: '20'
   states:
     bus_sink: false
     bus_source: false
@@ -415,7 +415,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [255, 285]
+    coordinate: [280, 284.0]
     rotation: 0
     state: true
 - name: analog_fastnoise_source_x_2
@@ -742,7 +742,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    device_name: ''
+    device_name: hw:CARD=Rubix44,DEV=0
     num_inputs: '4'
     ok_to_block: 'False'
     samp_rate: samp_rate
@@ -771,7 +771,7 @@ blocks:
     bus_structure: null
     coordinate: [-16, 233]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: audio_source_1
   id: audio_source
   parameters:
@@ -790,7 +790,7 @@ blocks:
     bus_structure: null
     coordinate: [20, 976]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_add_xx_0
   id: blocks_add_xx
   parameters:
@@ -1543,9 +1543,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [362, 214]
+    coordinate: [312, 216.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: blocks_null_source_0
   id: blocks_null_source
   parameters:

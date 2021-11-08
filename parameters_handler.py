@@ -74,6 +74,7 @@ class Parameters:
         self.ch1_sim_t.set_snr(self.snr)
         self.ch1_sim_t.set_vol(self.on_off_out1)
         self.ch1_sim_t.set_en_noise(self.ch1_en_silence_noise)
+        
         self.ch1_sim_t.start(self.Nbuf)
         if self.dop_fd == 0:
             self.ch1_sim_t.set_noSpread(1)
@@ -99,6 +100,7 @@ class Parameters:
         self.ch2_sim_t.set_vol(self.on_off_out2)
         self.ch2_sim_t.set_en_noise(self.ch2_en_silence_noise)
         self.Nbuf = int(self.latency*self.samp_rate)
+        
         self.ch2_sim_t.start(self.Nbuf)
         if self.dop_fd == 0:
             self.ch2_sim_t.set_noSpread(1)
