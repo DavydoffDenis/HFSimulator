@@ -9,11 +9,26 @@
 # Author: Davydov Denis
 # GNU Radio version: 3.8.3.1
 
+from distutils.version import StrictVersion
+
+if __name__ == '__main__':
+    import ctypes
+    import sys
+    if sys.platform.startswith('linux'):
+        try:
+            x11 = ctypes.cdll.LoadLibrary('libX11.so')
+            x11.XInitThreads()
+        except:
+            print("Warning: failed to XInitThreads()")
+
+from PyQt5 import Qt
+from gnuradio import qtgui
+from gnuradio.filter import firdes
+import sip
 from gnuradio import analog
 from gnuradio import audio
 from gnuradio import blocks
 from gnuradio import filter
-from gnuradio.filter import firdes
 from gnuradio import gr
 import sys
 import signal
@@ -26,16 +41,45 @@ import epy_block_0_0
 import time
 import threading
 
+from gnuradio import qtgui
 
-class ch1_simulation(gr.top_block):
+class ch1_simulation(gr.top_block, Qt.QWidget):
 
     def __init__(self):
         gr.top_block.__init__(self, "HFS first channel")
+        Qt.QWidget.__init__(self)
+        self.setWindowTitle("HFS first channel")
+        qtgui.util.check_set_qss()
+        try:
+            self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
+        except:
+            pass
+        self.top_scroll_layout = Qt.QVBoxLayout()
+        self.setLayout(self.top_scroll_layout)
+        self.top_scroll = Qt.QScrollArea()
+        self.top_scroll.setFrameStyle(Qt.QFrame.NoFrame)
+        self.top_scroll_layout.addWidget(self.top_scroll)
+        self.top_scroll.setWidgetResizable(True)
+        self.top_widget = Qt.QWidget()
+        self.top_scroll.setWidget(self.top_widget)
+        self.top_layout = Qt.QVBoxLayout(self.top_widget)
+        self.top_grid_layout = Qt.QGridLayout()
+        self.top_layout.addLayout(self.top_grid_layout)
+
+        self.settings = Qt.QSettings("GNU Radio", "ch1_simulation")
+
+        try:
+            if StrictVersion(Qt.qVersion()) < StrictVersion("5.0.0"):
+                self.restoreGeometry(self.settings.value("geometry").toByteArray())
+            else:
+                self.restoreGeometry(self.settings.value("geometry"))
+        except:
+            pass
 
         ##################################################
         # Variables
         ##################################################
-        self.snr = snr = 10
+        self.snr = snr = 1
         self.vol = vol = 1
         self.tau_a = tau_a = 1/100.
         self.tau = tau = 0.002
@@ -70,6 +114,57 @@ class ch1_simulation(gr.top_block):
 
         self.single_pole_iir_filter_xx_0_0 = filter.single_pole_iir_filter_ff(2*pi*tau_a/samp_rate, 1)
         self.single_pole_iir_filter_xx_0 = filter.single_pole_iir_filter_ff(2*pi*tau_a/samp_rate, 1)
+        self.qtgui_sink_x_1_0 = qtgui.sink_f(
+            1024, #fftsize
+            firdes.WIN_BLACKMAN_hARRIS, #wintype
+            0, #fc
+            samp_rate, #bw
+            "", #name
+            True, #plotfreq
+            True, #plotwaterfall
+            True, #plottime
+            True #plotconst
+        )
+        self.qtgui_sink_x_1_0.set_update_time(1.0/10)
+        self._qtgui_sink_x_1_0_win = sip.wrapinstance(self.qtgui_sink_x_1_0.pyqwidget(), Qt.QWidget)
+
+        self.qtgui_sink_x_1_0.enable_rf_freq(False)
+
+        self.top_layout.addWidget(self._qtgui_sink_x_1_0_win)
+        self.qtgui_sink_x_1 = qtgui.sink_f(
+            1024, #fftsize
+            firdes.WIN_BLACKMAN_hARRIS, #wintype
+            0, #fc
+            samp_rate, #bw
+            "", #name
+            True, #plotfreq
+            True, #plotwaterfall
+            True, #plottime
+            True #plotconst
+        )
+        self.qtgui_sink_x_1.set_update_time(1.0/10)
+        self._qtgui_sink_x_1_win = sip.wrapinstance(self.qtgui_sink_x_1.pyqwidget(), Qt.QWidget)
+
+        self.qtgui_sink_x_1.enable_rf_freq(False)
+
+        self.top_layout.addWidget(self._qtgui_sink_x_1_win)
+        self.qtgui_sink_x_0 = qtgui.sink_f(
+            1024, #fftsize
+            firdes.WIN_BLACKMAN_hARRIS, #wintype
+            0, #fc
+            samp_rate, #bw
+            "", #name
+            True, #plotfreq
+            True, #plotwaterfall
+            True, #plottime
+            True #plotconst
+        )
+        self.qtgui_sink_x_0.set_update_time(1.0/10)
+        self._qtgui_sink_x_0_win = sip.wrapinstance(self.qtgui_sink_x_0.pyqwidget(), Qt.QWidget)
+
+        self.qtgui_sink_x_0.enable_rf_freq(False)
+
+        self.top_layout.addWidget(self._qtgui_sink_x_0_win)
         def _out_rms_func_probe():
             while True:
 
@@ -135,13 +230,16 @@ class ch1_simulation(gr.top_block):
         self.blocks_multiply_xx_0_0 = blocks.multiply_vcc(1)
         self.blocks_multiply_xx_0 = blocks.multiply_vcc(1)
         self.blocks_multiply_const_vxx_3 = blocks.multiply_const_ff(en_noise)
+        self.blocks_multiply_const_vxx_2_0 = blocks.multiply_const_cc(vol)
         self.blocks_multiply_const_vxx_2 = blocks.multiply_const_cc(vol)
         self.blocks_multiply_const_vxx_1 = blocks.multiply_const_ff(2 * sqrt(ampl[0][0]**2 + ampl[0][1]**2)*2)
+        self.blocks_multiply_const_vxx_0_0 = blocks.multiply_const_ff(0.5)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff(0.5)
         self.blocks_float_to_complex_1 = blocks.float_to_complex(1)
         self.blocks_float_to_complex_0 = blocks.float_to_complex(1)
         self.blocks_divide_xx_1 = blocks.divide_ff(1)
         self.blocks_delay_0 = blocks.delay(gr.sizeof_gr_complex*1, int(tau*samp_rate))
+        self.blocks_complex_to_real_0_0 = blocks.complex_to_real(1)
         self.blocks_complex_to_real_0 = blocks.complex_to_real(1)
         self.blocks_complex_to_mag_squared_2_0 = blocks.complex_to_mag_squared(1)
         self.blocks_complex_to_mag_squared_2 = blocks.complex_to_mag_squared(1)
@@ -149,6 +247,7 @@ class ch1_simulation(gr.top_block):
         self.blocks_add_xx_0_0 = blocks.add_vcc(1)
         self.blocks_add_xx_0 = blocks.add_vcc(1)
         self.audio_source_0 = audio.source(samp_rate, 'in1', True)
+        self.audio_sink_0_0_0 = audio.sink(samp_rate, 'out3', False)
         self.audio_sink_0_0 = audio.sink(samp_rate, 'out2', False)
         self.analog_sig_source_x_2 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, 1850, 1, 0, 0)
         self.analog_sig_source_x_1 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, freqShift, 1, 0, 0)
@@ -180,20 +279,26 @@ class ch1_simulation(gr.top_block):
         self.connect((self.analog_sig_source_x_1, 0), (self.blocks_multiply_xx_1, 0))
         self.connect((self.analog_sig_source_x_2, 0), (self.blocks_multiply_xx_0_0_0_0_0, 1))
         self.connect((self.audio_source_0, 0), (self.blocks_float_to_complex_0, 0))
+        self.connect((self.audio_source_0, 0), (self.qtgui_sink_x_0, 0))
         self.connect((self.blocks_add_xx_0, 0), (self.blocks_multiply_xx_1, 1))
         self.connect((self.blocks_add_xx_0_0, 0), (self.blocks_multiply_const_vxx_2, 0))
         self.connect((self.blocks_add_xx_1, 0), (self.audio_sink_0_0, 0))
         self.connect((self.blocks_add_xx_1, 0), (self.blocks_rms_xx_0_0, 0))
+        self.connect((self.blocks_add_xx_1, 0), (self.qtgui_sink_x_1, 0))
         self.connect((self.blocks_complex_to_mag_squared_2, 0), (self.single_pole_iir_filter_xx_0, 0))
         self.connect((self.blocks_complex_to_mag_squared_2_0, 0), (self.single_pole_iir_filter_xx_0_0, 0))
         self.connect((self.blocks_complex_to_real_0, 0), (self.blocks_multiply_const_vxx_0, 0))
+        self.connect((self.blocks_complex_to_real_0_0, 0), (self.blocks_multiply_const_vxx_0_0, 0))
         self.connect((self.blocks_delay_0, 0), (self.blocks_multiply_xx_0_0_0_0, 0))
         self.connect((self.blocks_divide_xx_1, 0), (self.blocks_nlog10_ff_0, 0))
         self.connect((self.blocks_float_to_complex_0, 0), (self.blocks_multiply_xx_0, 0))
         self.connect((self.blocks_float_to_complex_1, 0), (self.blocks_multiply_xx_0_0_0_0_0, 2))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_add_xx_1, 0))
+        self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.audio_sink_0_0_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.qtgui_sink_x_1_0, 0))
         self.connect((self.blocks_multiply_const_vxx_1, 0), (self.blocks_float_to_complex_1, 0))
         self.connect((self.blocks_multiply_const_vxx_2, 0), (self.blocks_complex_to_real_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_2_0, 0), (self.blocks_complex_to_real_0_0, 0))
         self.connect((self.blocks_multiply_const_vxx_3, 0), (self.blocks_add_xx_1, 1))
         self.connect((self.blocks_multiply_xx_0, 0), (self.low_pass_filter_0, 0))
         self.connect((self.blocks_multiply_xx_0_0, 0), (self.blocks_delay_0, 0))
@@ -203,6 +308,7 @@ class ch1_simulation(gr.top_block):
         self.connect((self.blocks_multiply_xx_0_0_0_0, 0), (self.blocks_add_xx_0, 1))
         self.connect((self.blocks_multiply_xx_0_0_0_0_0, 0), (self.blocks_add_xx_0_0, 1))
         self.connect((self.blocks_multiply_xx_0_0_0_0_0, 0), (self.blocks_complex_to_mag_squared_2_0, 0))
+        self.connect((self.blocks_multiply_xx_0_0_0_0_0, 0), (self.blocks_multiply_const_vxx_2_0, 0))
         self.connect((self.blocks_multiply_xx_1, 0), (self.blocks_add_xx_0_0, 0))
         self.connect((self.blocks_multiply_xx_1, 0), (self.blocks_complex_to_mag_squared_2, 0))
         self.connect((self.blocks_nlog10_ff_0, 0), (self.snr_out, 0))
@@ -220,6 +326,11 @@ class ch1_simulation(gr.top_block):
         self.connect((self.single_pole_iir_filter_xx_0_0, 0), (self.blocks_divide_xx_1, 1))
 
 
+    def closeEvent(self, event):
+        self.settings = Qt.QSettings("GNU Radio", "ch1_simulation")
+        self.settings.setValue("geometry", self.saveGeometry())
+        event.accept()
+
     def get_snr(self):
         return self.snr
 
@@ -233,6 +344,7 @@ class ch1_simulation(gr.top_block):
     def set_vol(self, vol):
         self.vol = vol
         self.blocks_multiply_const_vxx_2.set_k(self.vol)
+        self.blocks_multiply_const_vxx_2_0.set_k(self.vol)
 
     def get_tau_a(self):
         return self.tau_a
@@ -273,6 +385,9 @@ class ch1_simulation(gr.top_block):
         self.low_pass_filter_1.set_taps(firdes.low_pass(self.ampl[0][0]*(self.samp_rate/100.0), self.samp_rate, 50, 25, firdes.WIN_HAMMING, 6.76))
         self.low_pass_filter_1_0.set_taps(firdes.low_pass(self.ampl[0][1]*(self.samp_rate/100.0), self.samp_rate, 50, 25, firdes.WIN_HAMMING, 6.76))
         self.low_pass_filter_2.set_taps(firdes.low_pass(1, self.samp_rate, 1550, 100, firdes.WIN_HAMMING, 6.76))
+        self.qtgui_sink_x_0.set_frequency_range(0, self.samp_rate)
+        self.qtgui_sink_x_1.set_frequency_range(0, self.samp_rate)
+        self.qtgui_sink_x_1_0.set_frequency_range(0, self.samp_rate)
         self.single_pole_iir_filter_xx_0.set_taps(2*pi*self.tau_a/self.samp_rate)
         self.single_pole_iir_filter_xx_0_0.set_taps(2*pi*self.tau_a/self.samp_rate)
 
@@ -339,21 +454,34 @@ class ch1_simulation(gr.top_block):
 
 
 def main(top_block_cls=ch1_simulation, options=None):
+
+    if StrictVersion("4.5.0") <= StrictVersion(Qt.qVersion()) < StrictVersion("5.0.0"):
+        style = gr.prefs().get_string('qtgui', 'style', 'raster')
+        Qt.QApplication.setGraphicsSystem(style)
+    qapp = Qt.QApplication(sys.argv)
+
     tb = top_block_cls()
 
-    def sig_handler(sig=None, frame=None):
-        tb.stop()
-        tb.wait()
+    tb.start(2400)
 
-        sys.exit(0)
+    tb.show()
+
+    def sig_handler(sig=None, frame=None):
+        Qt.QApplication.quit()
 
     signal.signal(signal.SIGINT, sig_handler)
     signal.signal(signal.SIGTERM, sig_handler)
 
-    tb.start(2400)
+    timer = Qt.QTimer()
+    timer.start(500)
+    timer.timeout.connect(lambda: None)
 
-    tb.wait()
+    def quitting():
+        tb.stop()
+        tb.wait()
 
+    qapp.aboutToQuit.connect(quitting)
+    qapp.exec_()
 
 if __name__ == '__main__':
     main()
