@@ -100,7 +100,7 @@ class UserInterface(QMainWindow):
         lbl17_about = QLabel()
         pixmap = QPixmap("polet.png")
         lbl17_about.setPixmap(pixmap)
-        lbl18_about = QLabel("Версия: 1.73")
+        lbl18_about = QLabel("Версия: 1.75")
         lbl19_about = QLabel("Авторы проекта: Алексей Львов, Денис Давыдов")
         lbl20_about = QLabel('АО "НПП "Полет", 2019-2021 г.')
         

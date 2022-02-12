@@ -319,7 +319,11 @@ class ch1_simulation_test(gr.top_block):
         return self.fd
 
     def set_fd(self, fd):
+        if fd < 0.1:
+            fd = 0.1
         self.fd = fd
+        self.epy_block_0_0.reinit(self.fd)
+        self.epy_block_0.reinit(self.fd)
 
     def get_en_noise(self):
         return self.en_noise

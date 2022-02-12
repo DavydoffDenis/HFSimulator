@@ -506,23 +506,6 @@ blocks:
     coordinate: [2728, 720.0]
     rotation: 0
     state: true
-- name: audio_sink_0_0
-  id: audio_sink
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    device_name: out4
-    num_inputs: '1'
-    ok_to_block: 'False'
-    samp_rate: samp_rate
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1992, 804.0]
-    rotation: 0
-    state: true
 - name: audio_source_1
   id: audio_source
   parameters:
@@ -644,22 +627,6 @@ blocks:
     coordinate: [1936, 624.0]
     rotation: 0
     state: true
-- name: blocks_complex_to_real_0_0_0
-  id: blocks_complex_to_real
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1600, 816.0]
-    rotation: 0
-    state: true
 - name: blocks_delay_0_0
   id: blocks_delay
   parameters:
@@ -747,24 +714,6 @@ blocks:
     coordinate: [2128, 620.0]
     rotation: 0
     state: true
-- name: blocks_multiply_const_vxx_0_0_0_0
-  id: blocks_multiply_const_vxx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    const: '0.5'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    type: float
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1792, 812.0]
-    rotation: 0
-    state: true
 - name: blocks_multiply_const_vxx_1_0
   id: blocks_multiply_const_vxx
   parameters:
@@ -799,24 +748,6 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [1760, 620.0]
-    rotation: 0
-    state: true
-- name: blocks_multiply_const_vxx_2_0_0
-  id: blocks_multiply_const_vxx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    const: vol
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1408, 812.0]
     rotation: 0
     state: true
 - name: blocks_multiply_const_vxx_3
@@ -1330,20 +1261,16 @@ connections:
 - [blocks_complex_to_mag_squared_2, '0', single_pole_iir_filter_xx_0, '0']
 - [blocks_complex_to_mag_squared_2_0, '0', single_pole_iir_filter_xx_0_0, '0']
 - [blocks_complex_to_real_0_0, '0', blocks_multiply_const_vxx_0_0_0, '0']
-- [blocks_complex_to_real_0_0_0, '0', blocks_multiply_const_vxx_0_0_0_0, '0']
 - [blocks_delay_0_0, '0', blocks_multiply_xx_0_0_0_0_1, '0']
 - [blocks_divide_xx_1, '0', blocks_nlog10_ff_0, '0']
 - [blocks_float_to_complex_0_0, '0', blocks_multiply_xx_0_1, '0']
 - [blocks_float_to_complex_1_0, '0', blocks_multiply_xx_0_0_0_0_0_0, '2']
 - [blocks_multiply_const_vxx_0_0_0, '0', blocks_add_xx_1, '0']
-- [blocks_multiply_const_vxx_0_0_0_0, '0', audio_sink_0_0, '0']
 - [blocks_multiply_const_vxx_1_0, '0', blocks_float_to_complex_1_0, '0']
 - [blocks_multiply_const_vxx_2_0, '0', blocks_complex_to_real_0_0, '0']
-- [blocks_multiply_const_vxx_2_0_0, '0', blocks_complex_to_real_0_0_0, '0']
 - [blocks_multiply_const_vxx_3, '0', blocks_add_xx_1, '1']
 - [blocks_multiply_xx_0_0_0_0_0_0, '0', blocks_add_xx_0_0_0, '1']
 - [blocks_multiply_xx_0_0_0_0_0_0, '0', blocks_complex_to_mag_squared_2_0, '0']
-- [blocks_multiply_xx_0_0_0_0_0_0, '0', blocks_multiply_const_vxx_2_0_0, '0']
 - [blocks_multiply_xx_0_0_0_0_1, '0', blocks_add_xx_0_1, '1']
 - [blocks_multiply_xx_0_0_0_1, '0', blocks_add_xx_0_1, '0']
 - [blocks_multiply_xx_0_0_1, '0', blocks_delay_0_0, '0']
