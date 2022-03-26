@@ -37,10 +37,10 @@ class simulation(gr.top_block):
         ##################################################
         # Variables
         ##################################################
-        self.snr = snr = 40
+        self.snr = snr = 10
         self.vol = vol = [1,1]
         self.tau_a = tau_a = 1/100.
-        self.tau = tau = 0.1
+        self.tau = tau = 0.002
         self.snrVecOut = snrVecOut = ([0]*3)
         self.samp_rate = samp_rate = 48000
         self.outSigRMSVec = outSigRMSVec = ([0]*2)

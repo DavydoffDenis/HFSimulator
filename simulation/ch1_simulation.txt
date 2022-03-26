@@ -1,0 +1,157 @@
+<<< Welcome to GNU Radio Companion 3.8.2.0 >>>
+
+Block paths:
+	/usr/share/gnuradio/grc/blocks
+
+Loading: "/home/denis/HFSimulator/simulation/ch1_simulation(test).grc"
+>>> Done
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+>>> Done (return code 137)
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+>>> Done (return code 1)
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+>>> Done (return code 1)
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+>>> Done (return code 1)
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+>>> Done (return code 137)
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+>>> Done (return code 137)
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+>>> Done (return code 137)
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+>>> Done (return code 137)
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+>>> Done (return code 137)
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+>>> Done (return code 137)
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+>>> Done (return code 137)
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+>>> Done (return code 137)
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+>>> Done (return code 137)
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+>>> Done (return code 137)
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+>>> Done (return code 137)
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+>>> Done (return code 137)
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+>>> Done (return code 137)
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+>>> Done (return code 137)
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+>>> Done (return code 137)
+
+Loading: "/home/denis/HFSimulator/simulation/ch2_simulation(test).grc"
+>>> Done
+
+Generating: '/home/denis/HFSimulator/simulation/ch1_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch1_simulation.py
+
+
+Generating: '/home/denis/HFSimulator/simulation/ch2_simulation.py'
+
+Executing: /usr/bin/x-terminal-emulator -e /usr/bin/python3 -u /home/denis/HFSimulator/simulation/ch2_simulation.py
+
+
+>>> Done (return code 1)
+
+>>> Done (return code 137)

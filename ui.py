@@ -11,7 +11,10 @@ from PyQt5.QtWidgets import (QWidget, QMainWindow, QTextEdit, QApplication,
 from PyQt5.QtGui import QIcon, QTextCursor, QPalette, QBrush, QPixmap
 from PyQt5.QtCore import Qt, QTimer, QObject, pyqtSignal
 
-import simulation
+# import simulation
+# import simulation_test
+import ch1_simulation
+import ch2_simulation
 import functools
 import epoll_server
 import sys
@@ -26,8 +29,11 @@ class UserInterface(QMainWindow):
     
     def __init__(self):
         super(QMainWindow, self).__init__()
-        self.sim_t = simulation.simulation()  # Создаем экземпляр класса потока выполнения симуляции канала
-        self.sim_handler = parameters_handler.Parameters(self.sim_t)  # Создаем экземпляр класса обслуживающего поток симуляции  
+        # self.sim_t = simulation.simulation()  # Создаем экземпляр класса потока выполнения симуляции канала
+        # self.sim_t = simulation_test.simulation_test()  # Создаем экземпляр класса потока выполнения симуляции канала для тестирования без внешней звуковой карты
+        self.ch1_sim_t = ch1_simulation.ch1_simulation()
+        self.ch2_sim_t = ch2_simulation.ch2_simulation()
+        self.sim_handler = parameters_handler.Parameters(self.ch1_sim_t, self.ch2_sim_t)  # Создаем экземпляр класса обслуживающего поток симуляции  
 #         self.adapt_mode = AsyncServer.ServerThread(self.sim_handler, self.tcp_host, self.tcp_port)  # Создаем экземпляр класса сервера для режима адапт. частоты
         self.adapt_mode = epoll_server.ServerHandler(self.sim_handler)
         
@@ -35,19 +41,19 @@ class UserInterface(QMainWindow):
         lbl1_beams = QLabel("Амплитуда")
         lbl2_beams = QLabel("Первый луч:")
         lbl3_beams = QLabel("Второй луч:")
-        lbl4_beams = QLabel("Временной сдвиг:")
+        lbl4_beams = QLabel("Задержка между лучами:")
         lbl5_beams = QLabel("мс")
         
         lbl6_beams = QLabel("Амплитуда первого луча:")
         lbl7_beams = QLabel("Амплитуда второго луча:")
         self.lbl8_beams = QLabel("-")
         self.lbl9_beams = QLabel("-")
-        lbl10_beams = QLabel("Временной сдвиг между лучами:")
+        lbl10_beams = QLabel("Задержка между лучами:")
         self.lbl11_beams = QLabel("-")
         lbl12_beams = QLabel("мс")
 
         lbl1_doppler = QLabel("Доплеровский сдвиг:")
-        lbl2_doppler = QLabel("Доп. рассеивание:")
+        lbl2_doppler = QLabel("Доплеровское  уширение:")
         lbl3_doppler = QLabel("Гц")
         lbl4_doppler = QLabel("Гц")
         
@@ -58,7 +64,7 @@ class UserInterface(QMainWindow):
         lbl9_doppler = QLabel("Гц")
         lbl10_doppler = QLabel("Гц")
 
-        lbl1_snr = QLabel("Отношение сигнал/шум")
+        lbl1_snr = QLabel("ОСШ")
         lbl2_snr = QLabel("дБ")
         
         lbl3_snr = QLabel("ОСШ установленное:")
@@ -94,7 +100,7 @@ class UserInterface(QMainWindow):
         lbl17_about = QLabel()
         pixmap = QPixmap("polet.png")
         lbl17_about.setPixmap(pixmap)
-        lbl18_about = QLabel("Версия: 1.71")
+        lbl18_about = QLabel("Версия: 1.75")
         lbl19_about = QLabel("Авторы проекта: Алексей Львов, Денис Давыдов")
         lbl20_about = QLabel('АО "НПП "Полет", 2019-2021 г.')
         
@@ -168,10 +174,10 @@ class UserInterface(QMainWindow):
         
         self.str1_serv_addr = QLineEdit()  # Адрес сервера
         self.str1_serv_addr.setText("localhost")
-        self.str1_serv_addr.setMaxLength(11)
+        self.str1_serv_addr.setMaxLength(15)
         
         self.btn1_setup = QPushButton("Загрузить новый набор частотных каналов")  # Кнопка, отвечающая за загрузку файла с параметрами каналов
-        self.btn2_start_stop = QPushButton("Запустить симуляцию канала")  # Позволяет включать и выключать поток симуляции канала 
+        self.btn2_start_stop = QPushButton("Начать симуляцию")  # Позволяет включать и выключать поток симуляции канала 
         self.btn2_start_stop.setDisabled(True)
         # self.btn3_sw_off = QPushButton("Отключить выходной сигнал")
         
@@ -385,23 +391,19 @@ class UserInterface(QMainWindow):
         self.about_window.show()
             
     def fixed_sel(self):
-        
-        if self.gr_box3_fixed_freq_mode.isChecked():
-            
-                    
+        if self.gr_box3_fixed_freq_mode.isChecked():                  
             self.btn2_start_stop.setDisabled(False)
-            self.btn2_start_stop.setText("Запустить симуляцию в режиме фиксированной частоты")
+            self.btn2_start_stop.setText("Начать симуляцию")
             self.gr_box4_freq_adapt_mode.setChecked(False)  # Для взаимоисключения одновременной работы в обоих режимах
         else:
             #self.btn2_start_stop.setDisabled(True)
             self.gr_box4_freq_adapt_mode.setChecked(True)  # Для взаимоисключения одновременной работы в обоих режимах
             
     def adapt_sel(self):
-        
         if self.gr_box4_freq_adapt_mode.isChecked():
             
             self.btn2_start_stop.setDisabled(False)
-            self.btn2_start_stop.setText("Запустить симуляцию в режиме адаптации по частоте")
+            self.btn2_start_stop.setText("Начать симуляцию")
             self.gr_box3_fixed_freq_mode.setChecked(False)  # Для взаимоисключения одновременной работы в обоих режимах
         else:
             #self.btn2_start_stop.setDisabled(True)
@@ -420,31 +422,43 @@ class UserInterface(QMainWindow):
             self.channels_csv_filename = new_chanels_csv_filename
             
     def get_parameters_from_flow_graph(self, obj):  # Передаём в выбранные параметры значения из потока симуляции
-        if obj.flow_graph_is_running == True:
+        if obj.ch1_flow_graph_is_running == obj.ch2_flow_graph_is_running == True:
             #  Передаём в выбранные параметры значения из потока симуляции
-    #         self.lbl8_beams.setText(str(round(self.sim_handler.get_ampl()[0][0], 2)))  # Амплитуда первого луча
-            self.lbl8_beams.setText(str(round(obj.sim_t.get_ampl()[0][0], 2)))  # Амплитуда первого луча
+            self.lbl8_beams.setText(str(round(self.sim_handler.get_ampl(0), 2)))  # Амплитуда первого луча
+            # self.lbl8_beams.setText(str(round(obj.sim_t.get_ampl()[0][0], 2)))  # Амплитуда первого луча
+            # self.lbl8_beams.setText(str(round(obj.ch1_sim_t.get_ampl()[0][0], 2)))  # Амплитуда первого луча
+
+            self.lbl9_beams.setText(str(round(self.sim_handler.get_ampl(1), 2)))  # Амплитуда второго луча
+            # self.lbl9_beams.setText(str(round(obj.sim_t.get_ampl()[0][1], 2)))  # Амплитуда второго луча
+            # self.lbl9_beams.setText(str(round(obj.ch1_sim_t.get_ampl()[0][1], 2)))  # Амплитуда второго луча
+
+            self.lbl11_beams.setText(str(self.sim_handler.get_tau()*1000))  # Задержка второго луча относительно первого
+            # self.lbl11_beams.setText(str(obj.sim_t.get_tau()*1000))  # Задержка второго луча относительно первого
+            # self.lbl11_beams.setText(str(obj.ch1_sim_t.get_tau()*1000))  # Задержка второго луча относительно первого
             
-    #         self.lbl9_beams.setText(str(round(self.sim_handler.get_ampl()[0][1], 2)))  # Амплитуда второго луча
-            self.lbl9_beams.setText(str(round(obj.sim_t.get_ampl()[0][1], 2)))  # Амплитуда второго луча
-            
-    #         self.lbl11_beams.setText(str(self.sim_handler.get_tau()*1000))  # Задержка второго луча относительно первого
-            self.lbl11_beams.setText(str(obj.sim_t.get_tau()*1000))  # Задержка второго луча относительно первого
-            
-    #         self.lbl7_doppler.setText(str(round(self.sim_handler.get_dop_freq_shift(), 2)))  # Доплеровский сдвиг частоты
-            self.lbl7_doppler.setText(str(round(obj.sim_t.get_freqShift(), 2)))  # Доплеровский сдвиг частоты
+            self.lbl7_doppler.setText(str(round(self.sim_handler.get_dop_freq_shift(), 2)))  # Доплеровский сдвиг частоты
+            # self.lbl7_doppler.setText(str(round(obj.sim_t.get_freqShift(), 2)))  # Доплеровский сдвиг частоты
+            # self.lbl7_doppler.setText(str(round(obj.ch1_sim_t.get_freqShift(), 2)))  # Доплеровский сдвиг частоты
             
             # Передаём в выбранные параметры установленные значения доплеровского уширения и отношения сигнал-шум
-            self.lbl8_doppler.setText(str(round(obj.sim_t.get_fd(), 2)))  # Доплеровское уширение (рассеивание)
-            self.lbl4_snr.setText(str(round(obj.snr, 2)))  # Отношение сигнал-шум
-            
+            self.lbl8_doppler.setText(str(round(self.sim_handler.get_dop_ir(), 2)))  # Доплеровское уширение (рассеивание)
+            self.lbl4_snr.setText(str(round(self.sim_handler.snr, 2)))  # Отношение сигнал-шум
+            # self.lbl8_doppler.setText(str(round(obj.ch1_sim_t.get_fd(), 2)))  # Доплеровское уширение (рассеивание)
+            # self.lbl4_snr.setText(str(round(obj.snr, 2)))  # Отношение сигнал-шум
+
             #  Извлекаем данные, которые кладутся в измеренные параметры
-            snr = obj.sim_t.get_snrVecOut()
-            rms1 = round(obj.sim_t.get_outSigRMSVec()[0], 2)
-            rms2 = round(obj.sim_t.get_outSigRMSVec()[1], 2)
+            # snr = obj.sim_t.get_snrVecOut()
+            # rms1 = round(obj.sim_t.get_outSigRMSVec()[0], 2)
+            # rms2 = round(obj.sim_t.get_outSigRMSVec()[1], 2)
+            snr1 = round(self.sim_handler.get_ch1_snr(), 2)
+            snr2 = round(self.sim_handler.get_ch2_snr(), 2)
+            rms1 = round(self.sim_handler.get_ch1_rms(), 2)
+            rms2 = round(self.sim_handler.get_ch2_rms(), 2)
             
-            self.lbl7_snr.setText(str(round(snr[2], 2)))
-            self.lbl7_1_snr.setText(str(round(snr[3], 2)))
+            # self.lbl7_snr.setText(str(round(snr[2], 2)))
+            # self.lbl7_1_snr.setText(str(round(snr[3], 2)))
+            self.lbl7_snr.setText(str(snr1))
+            self.lbl7_1_snr.setText(str(snr2))
             self.lbl2_rms.setText(str(rms1))
             self.lbl4_rms.setText(str(rms2))
             
@@ -487,10 +501,12 @@ class UserInterface(QMainWindow):
         
         self.sim_handler.on_off_out1 = self.dbl7_snr.value()
         self.sim_handler.on_off_out2 = self.dbl8_snr.value()
-        self.sim_handler.en_silence_noise = [0,0]
+        self.sim_handler.ch1_en_silence_noise = 0
+        self.sim_handler.ch2_en_silence_noise = 0
         
-        self.sim_handler.start_sim()  # Запуск симуляции канала
-        
+        self.sim_handler.ch1_start_sim()  # Запуск симуляции канала
+        self.sim_handler.ch2_start_sim()
+
         # Производим операции необходимые для измерения 
         timer_callback = functools.partial(self.get_parameters_from_flow_graph, obj = self.sim_handler)
         self.timer = QTimer()
@@ -499,31 +515,9 @@ class UserInterface(QMainWindow):
         self.timer.start(100)
         
         self.statusBar().showMessage("Поток выполнения запущен в режиме фиксированной частоты.")
-        self.btn2_start_stop.setText("Остановить симуляцию канала")
+        self.btn2_start_stop.setText("Остановить симуляцию")
         self.gr_box3_fixed_freq_mode.setEnabled(False)  # Блокирует редактирование параметров во время симуляции
         self.gr_box4_freq_adapt_mode.setEnabled(False)
-    
-#     def preemptive_start_for_b(self):
-#         # Функция запускает симулятор на 1-м канале до установления соединения
-#         # Присваиваем экземпляру self.sim_handler выбранные параметры 
-#              
-#         self.sim_handler.ampl1 = 1.0  # Амплитуда первого луча
-#         self.sim_handler.ampl2 = 1.0  # Амплитуда второго луча
-#         self.sim_handler.tau = 1.0 * 1e-3  # Задержка второго луча относительно первого
-#         self.sim_handler.dop_shift = 0.0  # Доплеровский сдвиг частоты
-#         self.sim_handler.dop_fd = 0.0  # Доплеровское уширение (рассеивание)
-#         self.sim_handler.snr = 40.0  # Отношение сигнал-шум
-#         
-#         self.sim_handler.on_off_out1 = 1.0
-#         self.sim_handler.on_off_out2 = 1.0
-#         
-#         self.sim_handler.start_sim()  # Запуск симуляции канала
-#         
-#         # Производим операции необходимые для измерения 
-#         self.timer = QTimer()
-#         self.timer.setSingleShot(False)
-#         self.timer.timeout.connect(self.update_meas)
-#         self.timer.start(100)
     
     def setup_sim_in_adapt_mode(self):
         with open("address.cfg", "w") as address_file:
@@ -545,20 +539,21 @@ class UserInterface(QMainWindow):
         
     def start_stop_button_handler(self):
         if self.gr_box3_fixed_freq_mode.isChecked():  # Если выбран режим фиксированной частоты
-            if self.sim_handler.flow_graph_is_running:
-                self.sim_handler.stop_sim()  # Остановка симуляции в режиме фиксированной частоты
+            if self.sim_handler.ch1_flow_graph_is_running and self.sim_handler.ch2_flow_graph_is_running:
+                self.sim_handler.ch1_stop_sim()  # Остановка симуляции в режиме фиксированной частоты
+                self.sim_handler.ch2_stop_sim()
                 print("Поток выполнения остановлен\n")
                 self.statusBar().showMessage("Поток выполнения остановлен")
-                self.btn2_start_stop.setText("Запустить симуляцию канала")
+                self.btn2_start_stop.setText("Начать симуляцию")
                 self.gr_box3_fixed_freq_mode.setEnabled(True)  # Разблокировывает редактироватие параметров после остановки симуляции
                 self.gr_box4_freq_adapt_mode.setEnabled(True)
-            elif not self.sim_handler.flow_graph_is_running:
+            elif not (self.sim_handler.ch1_flow_graph_is_running and self.sim_handler.ch2_flow_graph_is_running):
                 if not self.check_if_csv_file_with_channels_exists():
                     return
                 self.start_sim_in_fixed_mode()
                 print("Поток выполнения запущен в режиме фиксированной частоты\n")
                 self.statusBar().showMessage("Поток выполнения запущен в режиме фиксированной частоты.")
-                self.btn2_start_stop.setText("Остановить симуляцию канала")
+                self.btn2_start_stop.setText("Остановить симуляцию")
                 self.gr_box3_fixed_freq_mode.setEnabled(False)  # Блокирует редактирование параметров во время симуляции
                 self.gr_box4_freq_adapt_mode.setEnabled(False)
         elif self.gr_box4_freq_adapt_mode.isChecked():  # Если выбран режим адаптации по частоте
@@ -567,14 +562,14 @@ class UserInterface(QMainWindow):
                     self.setup_sim_in_adapt_mode()  # Записываем изменившиеся параметры из пользовательского интерфейса, если таковые имеются
                     self.adapt_mode.stop_server_flag = False
                     self.statusBar().showMessage("Поток выполнения запущен в режиме адаптации по частоте")
-                    self.btn2_start_stop.setText("Остановить симуляцию канала")
+                    self.btn2_start_stop.setText("Остановить симуляцию")
                     self.gr_box3_fixed_freq_mode.setEnabled(False)  # Блокирует редактирование параметров во время симуляции
                     self.gr_box4_freq_adapt_mode.setEnabled(False)
                 else:  # Если нет, то ставим сервер на паузу
                     self.adapt_mode.stop_server_flag = True
                     print("Поток выполнения остановлен\n")
                     self.statusBar().showMessage("Поток выполнения остановлен")
-                    self.btn2_start_stop.setText("Запустить симуляцию канала")
+                    self.btn2_start_stop.setText("Начать симуляцию")
                     self.gr_box3_fixed_freq_mode.setEnabled(True)  # Разблокировывает редактироватие параметров после остановки симуляции
                     self.gr_box4_freq_adapt_mode.setEnabled(True)
             else:
@@ -591,49 +586,20 @@ class UserInterface(QMainWindow):
                 self.timer.start(100)
                 
                 self.statusBar().showMessage("Поток выполнения запущен в режиме адаптации по частоте")
-                self.btn2_start_stop.setText("Остановить симуляцию канала")
+                self.btn2_start_stop.setText("Остановить симуляцию")
                 self.gr_box3_fixed_freq_mode.setEnabled(False)  # Блокирует редактирование параметров во время симуляции
                 self.gr_box4_freq_adapt_mode.setEnabled(False)
 
     def switch_off_on_out(self):
         self.btn3_sw_off.setText("Включить выходной сигнал")
         self.sim_handler.off_out = True
-        
-    '''        
-        if self.sim_handler:
-            if self.sim_handler.flow_graph_is_running:
-                if self.gr_box3_fixed_freq_mode.isChecked():
-                    self.sim_handler.stop_sim()  # Остановка симуляции в режиме фиксированной частоты
-                elif self.gr_box4_freq_adapt_mode.isChecked():
-                    self.adapt_t.stop()
-                self.statusBar().showMessage("Поток выполнения остановлен.")
-                self.btn2_start_stop.setText("Запустить симуляцию канала")
-                self.lbl7_snr.setText(" 00.00")
-                self.gr_box3_fixed_freq_mode.setEnabled(True)  # Разблокировывает редактироватие параметров после остановки симуляции
-                self.gr_box4_freq_adapt_mode.setEnabled(True)
-            elif not self.sim_handler.flow_graph_is_running:
-                if self.gr_box3_fixed_freq_mode.isChecked():                       
-                    self.start_sim_in_fixed_mode()
-        else:                     
-            if self.gr_box3_fixed_freq_mode.isChecked():  # Стаарт симуляции в режиме фиксированной частоты
-                self.sim_handler = parameters_handler.Parameters()  # Создаем экземпляр класса обслуживающего поток симуляции
-                self.start_sim_in_fixed_mode()
-                
-            elif self.gr_box4_freq_adapt_mode.isChecked():  # Старт симуляции в режиме адаптации по частоте
-                self.adapt_t = async_server.ServerThread("localhost", self.tcp_port)  # Создаем поток для адаптации по частоте
-                self.adapt_t.start()
-                self.statusBar().showMessage("Адаптация по частоте включена...")
-    '''
+
     def signals(self):               
         self.gr_box3_fixed_freq_mode.toggled.connect(self.fixed_sel)  # Обработка сигнала выбора режима фикс. частоты
         self.btn1_setup.clicked.connect(self.set_new_channels)  # Обработка сигнала нажатия на кнопку для загрузки новых параметров
         self.gr_box4_freq_adapt_mode.toggled.connect(self.adapt_sel)  # Обработка сигнала выбора режима адапт. частоты
         #self.gr_box4_freq_adapt_mode.toggled.connect(self.adapt_sel())  # Обработка сигнала выбора режима адаптации по частоте
         self.btn2_start_stop.clicked.connect(self.start_stop_button_handler)  # Обработка сигнала нажатия на кнопку старт-стоп
-        
-#         self.btn1_setup.clicked.connect(self.set_new_channels)  # Обработка сигнала нажатия на кнопку для загрузки новых параметров
-        
-        #self.btn3_sw_off.clicked.connect(self.switch_off_out)
     
     def append_log(self, text):
         """Append text to the QTextEdit."""
@@ -649,5 +615,3 @@ class OutputLogger(QObject):
     
     def write(self, text):
         self.emit_write.emit(str(text))
-        
-        
