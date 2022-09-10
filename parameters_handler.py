@@ -1,8 +1,5 @@
-'''
-Created on Jul 2, 2020
 
-@author: user
-'''
+
 from math import log, sqrt, exp, pi
 import time
 
@@ -23,10 +20,15 @@ class Parameters:
         self.dop_fd = None  # Доплеровское уширение (рассеивание)
         self.snr = None  # Отношение сигнал-шум
         self.rms = None  # Измеряемое в канале среднеквадратическое отклонение
-        self.on_off_out1 = None  # Атрибут отвечает за присутствие или отсутствие выхода 1
-        self.on_off_out2 = None  # Атрибут отвечает за присутствие или отсутствие выхода 2
-        # self.ch1_en_silence_noise = None  # Включает шум на выходе первого канала когда канал выключен для глушения пролазов
-        # self.ch2_en_silence_noise = None  # Включает шум на выходе второго канала когда канал выключен для глушения пролазов
+        self.in1_sel = None  # Атрибут отвечает за коммутацию входа
+        self.out1_sel = None  # Атрибут отвечает за коммутацию выхода
+        self.in2_sel = None  # Атрибут отвечает за коммутацию входа
+        self.out2_sel = None  # Атрибут отвечает за коммутацию выхода
+        self.on_off_out1 = None
+        self.on_off_out2 = None
+
+        self.ch1_en_silence_noise = 0  # Включает шум на выходе первого канала когда канал выключен для глушения пролазов
+        self.ch2_en_silence_noise = 0  # Включает шум на выходе второго канала когда канал выключен для глушения пролазов
     
         self.ch1_flow_graph_is_running = None  # Показывает, запущен ли поток симуляции первого канала
         self.ch2_flow_graph_is_running = None  # Показывает, запущен ли поток симуляции второго канала
@@ -80,6 +82,8 @@ class Parameters:
             self.ch1_sim_t.set_noSpread(1)
         else:
             self.ch1_sim_t.set_noSpread(0)
+        self.ch1_sim_t.set_in_sel(self.in1_sel)
+        self.ch1_sim_t.set_out_sel(self.out1_sel)
         time.sleep(0.01)
         self.ch1_sim_t.stop()
         self.ch1_sim_t.wait()
@@ -106,6 +110,8 @@ class Parameters:
             self.ch2_sim_t.set_noSpread(1)
         else:
             self.ch2_sim_t.set_noSpread(0)
+        self.ch2_sim_t.set_in_sel(self.in2_sel)
+        self.ch2_sim_t.set_out_sel(self.out2_sel)
         time.sleep(0.01)
         self.ch2_sim_t.stop()
         self.ch2_sim_t.wait()
