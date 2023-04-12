@@ -149,7 +149,7 @@ class UserInterface(QMainWindow):
         lbl1_about = QLabel()
         pixmap = QPixmap("polet.png")
         lbl1_about.setPixmap(pixmap)
-        lbl2_about = QLabel("Версия: 1.801")
+        lbl2_about = QLabel("Версия: 1.802")
         lbl3_about = QLabel("Авторы проекта: Алексей Львов, Денис Давыдов")
         lbl4_about = QLabel('АО "НПП "Полет", 2019-2022 г.')
         
@@ -266,7 +266,7 @@ class UserInterface(QMainWindow):
         self.str_serv_addr = QLineEdit()  # Адрес сервера
         self.str_serv_addr.setText("localhost")
         self.str_serv_addr.setMaxLength(15)
-        
+    
         self.btn1_setup = QPushButton("Загрузить новый набор")  # Кнопка, отвечающая за загрузку файла с параметрами каналов
         self.btn2_setup = QPushButton("Загрузить новый набор")  
         self.btn_start_stop = QPushButton("Начать симуляцию")  # Позволяет включать и выключать поток симуляции каналов
@@ -920,8 +920,8 @@ class UserInterface(QMainWindow):
         self.sim_handler1.dop_fd = round(self.dbl2_doppler.value(), 2)  # Доплеровское уширение (рассеивание)
         self.sim_handler1.snr = round(self.dbl1_snr.value(), 2)  # Отношение сигнал-шум
         
-        self.sim_handler1.on_off_out1=self.list1_on_off.currentIndex()
-        self.sim_handler1.on_off_out2=self.list2_on_off.currentIndex()
+        self.sim_handler1.on_off_out1 = not self.list1_on_off.currentIndex()
+        self.sim_handler1.on_off_out2 = not self.list2_on_off.currentIndex()
         
         self.sim_handler1.in1_sel = self.list1_in.currentIndex()
         self.sim_handler1.out1_sel = self.list1_out.currentIndex()
@@ -956,8 +956,8 @@ class UserInterface(QMainWindow):
         self.sim_handler2.dop_fd = round(self.dbl4_doppler.value(), 2)  # Доплеровское уширение (рассеивание)
         self.sim_handler2.snr = round(self.dbl2_snr.value(), 2)  # Отношение сигнал-шум
         
-        self.sim_handler2.on_off_out1=self.list3_on_off.currentIndex()
-        self.sim_handler2.on_off_out2=self.list4_on_off.currentIndex()
+        self.sim_handler2.on_off_out1 = not self.list3_on_off.currentIndex()
+        self.sim_handler2.on_off_out2 = not self.list4_on_off.currentIndex()
 
         self.sim_handler2.in1_sel = self.list3_in.currentIndex()
         self.sim_handler2.out1_sel = self.list3_out.currentIndex()

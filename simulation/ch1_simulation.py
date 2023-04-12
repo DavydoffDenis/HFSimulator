@@ -48,7 +48,7 @@ class ch1_simulation(gr.top_block):
         self.out_rms_func = out_rms_func = 0
         self.noSpread = noSpread = 1
         self.kN = kN = pow(10.0, (-snr/20.0))
-        self.in_sel = in_sel = 2
+        self.in_sel = in_sel = 0
         self.freqShift = freqShift = 0.0
         self.fd = fd = 1
         self.en_noise = en_noise = 0
