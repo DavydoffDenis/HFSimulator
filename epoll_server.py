@@ -1294,7 +1294,9 @@ class ServerHandler(Thread):
                     #     self.ch4_noise_already_on = True
                     # else:
                     #     restart_channels = (1,0)  # Рестартим только первый канал, т.к. во втором канале уже генерируется белый шум
-                    new_commutation = (1,3,3,1)
+                    
+                    new_commutation = (0,3,3,0)
+
                     self.start_sim(self.sim_handler2, channel_number, restart_channels, new_commutation)
                     # self.ch3_noise_already_on = False
                     self.t1 = datetime.datetime.now()
@@ -1330,7 +1332,7 @@ class ServerHandler(Thread):
 
                 elif self.new_modem_2_TX_ch_num == self.new_modem_4_RX_ch_num:
                 # Включение нового частотного канала,
-                # втрой слышит первого, первый не слышит второй.
+                # Четвёртый слышит второго, второй не слышит четвёртого.
                     self.current_working_pair1 = [2,4]
                     self.modem_2_RX_ch_num = self.new_modem_2_RX_ch_num
                     self.modem_2_TX_ch_num = self.new_modem_2_TX_ch_num
@@ -1349,6 +1351,7 @@ class ServerHandler(Thread):
                     # else:
                     #     restart_channels = (1,0)  # Рестартим только первый канал, т.к. во втором канале уже генерируется белый шум
                     restart_channels = (1,0)
+
                     new_commutation = (1,3,3,1)
             
                     self.start_sim(self.sim_handler2, channel_number, restart_channels, new_commutation)
