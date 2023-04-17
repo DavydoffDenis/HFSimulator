@@ -1294,7 +1294,9 @@ class ServerHandler(Thread):
                     #     self.ch4_noise_already_on = True
                     # else:
                     #     restart_channels = (1,0)  # Рестартим только первый канал, т.к. во втором канале уже генерируется белый шум
-                    new_commutation = (1,3,3,1)
+                    
+                    new_commutation = (0,3,3,0)
+
                     self.start_sim(self.sim_handler2, channel_number, restart_channels, new_commutation)
                     # self.ch3_noise_already_on = False
                     self.t1 = datetime.datetime.now()
@@ -1330,7 +1332,7 @@ class ServerHandler(Thread):
 
                 elif self.new_modem_2_TX_ch_num == self.new_modem_4_RX_ch_num:
                 # Включение нового частотного канала,
-                # втрой слышит первого, первый не слышит второй.
+                # Четвёртый слышит второго, второй не слышит четвёртого.
                     self.current_working_pair1 = [2,4]
                     self.modem_2_RX_ch_num = self.new_modem_2_RX_ch_num
                     self.modem_2_TX_ch_num = self.new_modem_2_TX_ch_num
@@ -1341,7 +1343,7 @@ class ServerHandler(Thread):
                     # self.en_noise = [0, 1]
                     
                     print(f"Выбранный канал: {channel_number}")
-                    print("Второй слышит первого, первый не слышит второй")
+                    print("Четвёртый слышит второго, второй не слышит четвёртого.")
                     print(f"Комбинация номеров каналов: tx2 - {self.new_modem_2_TX_ch_num}, rx2 - {self.new_modem_2_RX_ch_num}, rx4 - {self.new_modem_4_RX_ch_num}")
                     # if not self.ch4_noise_already_on:
                     #     restart_channels = (1,1)  # Рестартим оба канала, т.к. в канале с несовпадающими номерами каналов должен генерироваться белый шум
@@ -1349,6 +1351,7 @@ class ServerHandler(Thread):
                     # else:
                     #     restart_channels = (1,0)  # Рестартим только первый канал, т.к. во втором канале уже генерируется белый шум
                     restart_channels = (1,0)
+
                     new_commutation = (1,3,3,1)
             
                     self.start_sim(self.sim_handler2, channel_number, restart_channels, new_commutation)
