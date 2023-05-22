@@ -3,15 +3,10 @@ from PyQt5.QtCore import QByteArray
 import sys
 import time
 
-address = 13
+address = 16
 
-transmission_channel_number = 3
-reception_channel_number = 4
-
-reception_channel_number1 = 1
-transmission_channel_number1 = 1
-
-
+transmission_channel_number = 2
+reception_channel_number = 1
 
 # print('Address: {} RX: {} TX: {}'.format(address, reception_channel_number, \
 #       transmission_channel_number))

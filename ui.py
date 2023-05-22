@@ -12,10 +12,11 @@ from PyQt5.QtCore import Qt, QTimer, QObject, pyqtSignal
 
 import ch1_simulation
 import ch2_simulation
-import ch3_simulation
-import ch4_simulation
+# import ch3_simulation
+# import ch4_simulation
+
 import functools
-import epoll_server
+import epoll_server_multy
 import sys
 import csv
 import os.path
@@ -29,11 +30,13 @@ class UserInterface(QMainWindow):
         # self.sim_t = simulation_test.simulation_test()  # Создаем экземпляр класса потока выполнения симуляции канала для тестирования без внешней звуковой карты
         self.ch1_sim_t = ch1_simulation.ch1_simulation()
         self.ch2_sim_t = ch2_simulation.ch2_simulation()
-        self.ch3_sim_t = ch3_simulation.ch3_simulation()
-        self.ch4_sim_t = ch4_simulation.ch4_simulation()
+        # self.ch3_sim_t = ch3_simulation.ch3_simulation()
+        # self.ch4_sim_t = ch4_simulation.ch4_simulation()
+        
         self.sim_handler1 = parameters_handler.Parameters(self.ch1_sim_t, self.ch2_sim_t)  # Создаем экземпляр класса обслуживающего поток симуляции  
-        self.sim_handler2 = parameters_handler.Parameters(self.ch3_sim_t, self.ch4_sim_t)
-        self.adapt_mode = epoll_server.ServerHandler(self.sim_handler1, self.sim_handler2)
+        # self.sim_handler2 = parameters_handler.Parameters(self.ch3_sim_t, self.ch4_sim_t)
+
+        self.adapt_mode = epoll_server_multy.ServerHandler()
         self.teamwork = False
         
     def init_ui(self):
@@ -67,8 +70,8 @@ class UserInterface(QMainWindow):
         lbl2_doppler = QLabel("Доп.  уширение:")
         lbl3_doppler = QLabel("Гц")
         lbl4_doppler = QLabel("Гц")
-        lbl5_doppler = QLabel("Доплеровский сдвиг:")
-        lbl6_doppler = QLabel("Доплеровское  уширение:")
+        lbl5_doppler = QLabel("                          Доплеровский сдвиг:")
+        lbl6_doppler = QLabel("                          Доплеровское  уширение:")
         lbl1_1_doppler = QLabel("Доп. сдвиг:")
         lbl2_1_doppler = QLabel("Доп.  уширение:")
         lbl3_1_doppler = QLabel("Гц")
@@ -87,7 +90,7 @@ class UserInterface(QMainWindow):
 
         lbl1_snr = QLabel("ОСШ")
         lbl2_snr = QLabel("дБ")
-        lbl3_snr = QLabel("ОСШ установленное:")
+        lbl3_snr = QLabel("                          ОСШ установленное:")
         self.lbl4_snr = QLabel("-")
         lbl5_snr = QLabel("дБ")
         lbl1_1_snr = QLabel("ОСШ")
@@ -98,7 +101,7 @@ class UserInterface(QMainWindow):
         lbl6_snr = QLabel("ОСШ прямой канал:")
         self.lbl7_snr = QLabel("-")
         lbl8_snr = QLabel("дБ")
-        lbl9_snr = QLabel("ОСШ обратный канал:")
+        lbl9_snr = QLabel("                          ОСШ обратный канал:")
         self.lbl10_snr = QLabel("-")
         lbl11_snr = QLabel("дБ")
         lbl12_snr = QLabel("ОСШ прямой канал:")
@@ -127,7 +130,7 @@ class UserInterface(QMainWindow):
         lbl1_1_rms = QLabel("RMS прямого канала:")
         self.lbl2_rms = QLabel("-")
         self.lbl3_rms = QLabel("-")
-        lbl4_rms = QLabel("RMS обратного канала:")
+        lbl4_rms = QLabel("                          RMS обратного канала:")
         lbl4_1_rms = QLabel("RMS обратного канала:")
         self.lbl5_rms = QLabel("-")
         self.lbl6_rms = QLabel("-")
@@ -139,9 +142,9 @@ class UserInterface(QMainWindow):
         lbl4_freq_adapt_mode = QLabel("Адрес модема 2:")
         lbl5_freq_adapt_mode = QLabel("Адрес модема 3:")        
         lbl6_freq_adapt_mode = QLabel("Адрес модема 4:")
-        lbl7_freq_adapt_mode = QLabel("Набор каналов 1:")
+        lbl7_freq_adapt_mode = QLabel("Набор каналов:")
         self.lbl8_freq_adapt_mode = QLabel("parameters_for_sim.csv")
-        self.channels_csv_filename1 = "parameters_for_sim1.csv"
+        self.channels_csv_filename = "parameters_for_sim.csv"
         lbl9_freq_adapt_mode = QLabel("Набор каналов 2:")
         self.lbl10_freq_adapt_mode = QLabel("parameters_for_sim.csv")
         self.channels_csv_filename2 = "parameters_for_sim2.csv"
@@ -149,9 +152,9 @@ class UserInterface(QMainWindow):
         lbl1_about = QLabel()
         pixmap = QPixmap("polet.png")
         lbl1_about.setPixmap(pixmap)
-        lbl2_about = QLabel("Версия: 1.803")
+        lbl2_about = QLabel("Версия: 2.0")
         lbl3_about = QLabel("Авторы проекта: Алексей Львов, Денис Давыдов")
-        lbl4_about = QLabel('АО "НПП "Полет", 2019-2022 г.')
+        lbl4_about = QLabel('АО "НПП "Полет", 2019-2023 г.')
         
         self.txt1_term_output = QTextEdit()  # Поле вывода сообщений симулятора
         self.txt1_term_output.setReadOnly(True)
@@ -264,7 +267,7 @@ class UserInterface(QMainWindow):
         self.int_serv_port.setValue(8080)
         
         self.str_serv_addr = QLineEdit()  # Адрес сервера
-        self.str_serv_addr.setText("localhost")
+        self.str_serv_addr.setText("192.168.1.1")
         self.str_serv_addr.setMaxLength(15)
     
         self.btn1_setup = QPushButton("Загрузить новый набор")  # Кнопка, отвечающая за загрузку файла с параметрами каналов
@@ -556,13 +559,13 @@ class UserInterface(QMainWindow):
         grid_main1_freq_adapt_mode.addWidget(self.str_serv_addr, 0, 1)
         grid_main1_freq_adapt_mode.addWidget(lbl2_freq_adapt_mode, 1, 0)
         grid_main1_freq_adapt_mode.addWidget(self.int_serv_port, 1, 1)      
-        grid_main1_freq_adapt_mode.addWidget(lbl3_freq_adapt_mode, 0, 2)
-        grid_main1_freq_adapt_mode.addWidget(self.int1_m_addr, 0, 3)
-        grid_main1_freq_adapt_mode.addWidget(lbl4_freq_adapt_mode, 1, 2)
-        grid_main1_freq_adapt_mode.addWidget(self.int2_m_addr, 1, 3)
-        grid_main1_freq_adapt_mode.addWidget(lbl7_freq_adapt_mode, 2, 0)
-        grid_main1_freq_adapt_mode.addWidget(self.lbl8_freq_adapt_mode, 2, 1)
-        grid_main1_freq_adapt_mode.addWidget(self.btn1_setup, 2, 2, 1, 2)
+        grid_main1_freq_adapt_mode.addWidget(lbl3_freq_adapt_mode, 2, 0)
+        grid_main1_freq_adapt_mode.addWidget(self.int1_m_addr, 2, 1)
+        grid_main1_freq_adapt_mode.addWidget(lbl4_freq_adapt_mode, 3, 0)
+        grid_main1_freq_adapt_mode.addWidget(self.int2_m_addr, 3, 1)
+        grid_main1_freq_adapt_mode.addWidget(lbl7_freq_adapt_mode, 4, 0)
+        grid_main1_freq_adapt_mode.addWidget(self.lbl8_freq_adapt_mode, 4, 1)
+        grid_main1_freq_adapt_mode.addWidget(self.btn1_setup, 5, 0, 1, 2)
         grid_main1_freq_adapt_mode.setAlignment(Qt.AlignLeft)
         
         # Для второй пары модемов
@@ -571,9 +574,9 @@ class UserInterface(QMainWindow):
         grid_main2_freq_adapt_mode.addWidget(self.int3_m_addr, 0, 3)
         grid_main2_freq_adapt_mode.addWidget(lbl6_freq_adapt_mode, 1, 0, 1, 3)
         grid_main2_freq_adapt_mode.addWidget(self.int4_m_addr, 1, 3)
-        grid_main2_freq_adapt_mode.addWidget(lbl9_freq_adapt_mode, 2, 0)
-        grid_main2_freq_adapt_mode.addWidget(self.lbl10_freq_adapt_mode, 2, 1)
-        grid_main2_freq_adapt_mode.addWidget(self.btn2_setup, 2, 2, 1, 2)
+        # grid_main2_freq_adapt_mode.addWidget(lbl9_freq_adapt_mode, 2, 0)
+        # grid_main2_freq_adapt_mode.addWidget(self.lbl10_freq_adapt_mode, 2, 1)
+        # grid_main2_freq_adapt_mode.addWidget(self.btn2_setup, 2, 2, 1, 2)
         grid_main2_freq_adapt_mode.setAlignment(Qt.AlignLeft)
         
         # Для первой пары модемов
@@ -668,7 +671,7 @@ class UserInterface(QMainWindow):
 
         hbox_fixed_freq_mode = QHBoxLayout()
         hbox_fixed_freq_mode.addWidget(self.gr_box1_fixed_freq_mode)
-        hbox_fixed_freq_mode.addWidget(self.gr_box2_fixed_freq_mode)
+        # hbox_fixed_freq_mode.addWidget(self.gr_box2_fixed_freq_mode)
 
         # Для всех модемов
         self.gr_box3_fixed_freq_mode = QGroupBox("Режим фиксированной частоты") # Задание группы режима фиксированной частоты
@@ -696,13 +699,13 @@ class UserInterface(QMainWindow):
         self.gr_box3_freq_adapt_mode.setChecked(False)
         self.gr_box3_freq_adapt_mode.setLayout(hbox_freq_adapt_mode)
 
-        self.gr_box1_chan_params = QGroupBox("Текущие выбранные параметры канала 1:") # Задание группы текущих выбранных параметров канала 1
+        self.gr_box1_chan_params = QGroupBox("Текущие выбранные параметры канала:") # Задание группы текущих выбранных параметров канала 1
         self.gr_box1_chan_params.setLayout(grid1_chosen_parameters)
 
         self.gr_box2_chan_params = QGroupBox("Текущие выбранные параметры канала 2:") # Задание группы текущих выбранных параметров канала 1
         self.gr_box2_chan_params.setLayout(grid2_chosen_parameters)
         
-        self.gr_box1_meas = QGroupBox("Измерения канала 1:")
+        self.gr_box1_meas = QGroupBox("Измерения канала:")
         self.gr_box1_meas.setLayout(grid1_meas)
 
         self.gr_box2_meas = QGroupBox("Измерения канала 2:")
@@ -716,9 +719,9 @@ class UserInterface(QMainWindow):
         grid_main.addWidget(self.gr_box3_fixed_freq_mode, 0, 0, 1, 2)
         grid_main.addWidget(self.gr_box3_freq_adapt_mode, 1, 0, 1, 2)
         grid_main.addWidget(self.gr_box1_chan_params, 2, 0)
-        grid_main.addWidget(self.gr_box2_chan_params, 2, 1 )
+        # grid_main.addWidget(self.gr_box2_chan_params, 2, 1 )
         grid_main.addWidget(self.gr_box1_meas, 3, 0)
-        grid_main.addWidget(self.gr_box2_meas, 3, 1)
+        # grid_main.addWidget(self.gr_box2_meas, 3, 1)
         grid_main.addWidget(self.gr_box7_term_output, 0, 2, 5, 1)
         grid_main.addWidget(self.btn_start_stop, 4, 0, 1, 2)
 
@@ -781,7 +784,7 @@ class UserInterface(QMainWindow):
             #self.btn2_start_stop.setDisabled(True)
             self.gr_box3_fixed_freq_mode.setChecked(True)  # Для взаимоисключения одновременной работы в обоих режимах
             
-    def set_new_channels1(self):
+    def set_new_channels(self):
         new_chanels_csv_filename = QFileDialog.getOpenFileName(self, "Выберите файл c расширением .csv", "", "*.csv")[0]
         if new_chanels_csv_filename:
             print(f"Загружен файл с набором каналов: {new_chanels_csv_filename}:")
@@ -791,19 +794,19 @@ class UserInterface(QMainWindow):
                     print(idx+1,": ",", ".join(row))
             print(' ')
             self.lbl8_freq_adapt_mode.setText(new_chanels_csv_filename.split("/")[-1])
-            self.channels_csv_filename1 = new_chanels_csv_filename
+            self.channels_csv_filename = new_chanels_csv_filename
                 
-    def set_new_channels2(self):
-        new_chanels_csv_filename = QFileDialog.getOpenFileName(self, "Выберите файл c расширением .csv", "", "*.csv")[0]
-        if new_chanels_csv_filename:
-            print(f"Загружен файл с набором каналов: {new_chanels_csv_filename}:")
-            with open(new_chanels_csv_filename, newline = '') as csvfile:
-                csvreader = csv.reader(csvfile)
-                for idx, row in enumerate(csvreader):
-                    print(idx+1,": ",", ".join(row))
-            print(' ')
-            self.lbl10_freq_adapt_mode.setText(new_chanels_csv_filename.split("/")[-1])
-            self.channels_csv_filename2 = new_chanels_csv_filename
+    # def set_new_channels2(self):
+    #     new_chanels_csv_filename = QFileDialog.getOpenFileName(self, "Выберите файл c расширением .csv", "", "*.csv")[0]
+    #     if new_chanels_csv_filename:
+    #         print(f"Загружен файл с набором каналов: {new_chanels_csv_filename}:")
+    #         with open(new_chanels_csv_filename, newline = '') as csvfile:
+    #             csvreader = csv.reader(csvfile)
+    #             for idx, row in enumerate(csvreader):
+    #                 print(idx+1,": ",", ".join(row))
+    #         print(' ')
+    #         self.lbl10_freq_adapt_mode.setText(new_chanels_csv_filename.split("/")[-1])
+    #         self.channels_csv_filename2 = new_chanels_csv_filename
             
     def get_parameters_from_flow_graph1(self, obj):  # Передаём в выбранные параметры значения из потока симуляции
         if obj.ch1_flow_graph_is_running == obj.ch2_flow_graph_is_running == True:
@@ -982,19 +985,19 @@ class UserInterface(QMainWindow):
             address_file.write(f"{self.int1_m_addr.value()} {self.int2_m_addr.value()}")
         self.adapt_mode.host = self.str_serv_addr.text()
         self.adapt_mode.port = self.int_serv_port.value()
-        self.adapt_mode.channels_csv_filename1 = self.channels_csv_filename1
+        self.adapt_mode.channels_csv_filename = self.channels_csv_filename
 
-        if self.teamwork:
-            with open("address.cfg", "a") as address_file:
-                address_file.write(f" {self.int3_m_addr.value()} {self.int4_m_addr.value()}")
-            self.adapt_mode.channels_csv_filename2 = self.channels_csv_filename2
+        # if self.teamwork:
+        #     with open("address.cfg", "a") as address_file:
+        #         address_file.write(f" {self.int3_m_addr.value()} {self.int4_m_addr.value()}")
+        #     self.adapt_mode.channels_csv_filename2 = self.channels_csv_filename2
         
-    def check_if_csv_file_with_channels_exists(self, channels_csv_filename1, channels_csv_filename2):
+    def check_if_csv_file_with_channels_exists(self, channels_csv_filename):
         try: 
-            if not os.path.exists(channels_csv_filename1):
+            if not os.path.exists(channels_csv_filename):
                 raise FileNotFoundError
-            elif not os.path.exists(channels_csv_filename2) and self.teamwork:
-                raise FileNotFoundError
+            # elif not os.path.exists(channels_csv_filename2) and self.teamwork:
+            #     raise FileNotFoundError
             else:
                 return True
         except FileNotFoundError as err:
@@ -1034,7 +1037,7 @@ class UserInterface(QMainWindow):
                 self.teamwork = False
             if self.adapt_mode.is_alive():
                 if not self.adapt_mode.server_is_running:  # Если сервер приостановлен после предыдущего нажатия на кнопку, тогда возобновляем режим адаптации
-                    if not self.check_if_csv_file_with_channels_exists(self.channels_csv_filename1, self.channels_csv_filename2):
+                    if not self.check_if_csv_file_with_channels_exists(self.channels_csv_filename):
                         return
                     self.setup_sim_in_adapt_mode()  # Записываем изменившиеся параметры из пользовательского интерфейса, если таковые имеются
                     self.adapt_mode.stop_server_flag = False
@@ -1050,18 +1053,18 @@ class UserInterface(QMainWindow):
                     self.gr_box3_fixed_freq_mode.setEnabled(True)  # Разблокировывает редактироватие параметров после остановки симуляции
                     self.gr_box3_freq_adapt_mode.setEnabled(True)
             else:
-                if not self.check_if_csv_file_with_channels_exists(self.channels_csv_filename1, self.channels_csv_filename2):
+                if not self.check_if_csv_file_with_channels_exists(self.channels_csv_filename):
                     return
                 
                 self.setup_sim_in_adapt_mode()
                 self.adapt_mode.start()
         
-                # Производим операции необходимые для измерения 
-                timer_callback = functools.partial(self.get_parameters_from_flow_graph1, obj = self.adapt_mode.sim_handler1)
-                self.timer3 = QTimer()
-                self.timer3.setSingleShot(False)
-                self.timer3.timeout.connect(timer_callback)  # Заполняем поля выбранных и измеренных параметров)
-                self.timer3.start(100)
+                # # Производим операции необходимые для измерения 
+                # timer_callback = functools.partial(self.get_parameters_from_flow_graph1, obj = self.adapt_mode.sim_handler1)
+                # self.timer3 = QTimer()
+                # self.timer3.setSingleShot(False)
+                # self.timer3.timeout.connect(timer_callback)  # Заполняем поля выбранных и измеренных параметров)
+                # self.timer3.start(100)
                 
                 self.statusBar().showMessage("Поток выполнения запущен в режиме адаптации по частоте")
                 self.btn_start_stop.setText("Остановить симуляцию")
@@ -1074,8 +1077,8 @@ class UserInterface(QMainWindow):
 
     def signals(self):               
         self.gr_box3_fixed_freq_mode.toggled.connect(self.fixed_sel)  # Обработка сигнала выбора режима фикс. частоты
-        self.btn1_setup.clicked.connect(self.set_new_channels1)  # Обработка сигнала нажатия на кнопку для загрузки новых параметров
-        self.btn2_setup.clicked.connect(self.set_new_channels2)  # Обработка сигнала нажатия на кнопку для загрузки новых параметров
+        self.btn1_setup.clicked.connect(self.set_new_channels)  # Обработка сигнала нажатия на кнопку для загрузки новых параметров
+        # self.btn2_setup.clicked.connect(self.set_new_channels2)  # Обработка сигнала нажатия на кнопку для загрузки новых параметров
         self.gr_box3_freq_adapt_mode.toggled.connect(self.adapt_sel)  # Обработка сигнала выбора режима адапт. частоты
         #self.gr_box4_freq_adapt_mode.toggled.connect(self.adapt_sel())  # Обработка сигнала выбора режима адаптации по частоте
         self.btn_start_stop.clicked.connect(self.start_stop_button_handler)  # Обработка сигнала нажатия на кнопку старт-стоп

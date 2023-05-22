@@ -11,7 +11,7 @@ options:
     gen_linking: dynamic
     generate_options: no_gui
     hier_block_src_path: '.:'
-    id: ch2_simulation
+    id: tx2_simulation
     max_nouts: int(50e-3*samp_rate)
     output_language: python
     placement: (0,0)
@@ -22,7 +22,7 @@ options:
     run_options: run
     sizing_mode: fixed
     thread_safe_setters: ''
-    title: HFS second channel
+    title: HFS tx2 channel
     window_size: ''
   states:
     bus_sink: false

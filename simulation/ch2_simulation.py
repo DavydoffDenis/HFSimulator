@@ -131,6 +131,8 @@ class ch2_simulation(gr.top_block):
                 6.76))
         self.epy_block_0_0_0_0 = epy_block_0_0_0_0.blk(fd=fd)
         self.epy_block_0_0_0 = epy_block_0_0_0.blk(fd=fd)
+        self.blocks_selector_2 = blocks.selector(gr.sizeof_float*1,0,out_sel)
+        self.blocks_selector_2.set_enabled(True)
         self.blocks_selector_1 = blocks.selector(gr.sizeof_float*1,in_sel,0)
         self.blocks_selector_1.set_enabled(True)
         self.blocks_selector_0_1 = blocks.selector(gr.sizeof_gr_complex*1,noSpread,0)
@@ -164,7 +166,10 @@ class ch2_simulation(gr.top_block):
         self.audio_source_0_0_0 = audio.source(samp_rate, 'in3', True)
         self.audio_source_0_0 = audio.source(samp_rate, 'in2', True)
         self.audio_source_0 = audio.source(samp_rate, 'in1', True)
-        self.audio_sink_0 = audio.sink(samp_rate, 'out1', False)
+        self.audio_sink_0_0_2 = audio.sink(samp_rate, 'out4', False)
+        self.audio_sink_0_0_1 = audio.sink(samp_rate, 'out3', False)
+        self.audio_sink_0_0_0 = audio.sink(samp_rate, 'out2', False)
+        self.audio_sink_0_0 = audio.sink(samp_rate, 'out1', False)
         self.analog_sig_source_x_2_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, 1850, 1, 0, 0)
         self.analog_sig_source_x_1_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, freqShift, 1, 0, 0)
         self.analog_sig_source_x_0_0_1 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, -1850, 1, 0, 0)
@@ -200,8 +205,8 @@ class ch2_simulation(gr.top_block):
         self.connect((self.audio_source_0_0_0_0, 0), (self.blocks_selector_1, 3))
         self.connect((self.blocks_add_xx_0_0_0, 0), (self.blocks_multiply_const_vxx_2_0, 0))
         self.connect((self.blocks_add_xx_0_1, 0), (self.blocks_multiply_xx_1_0, 1))
-        self.connect((self.blocks_add_xx_1, 0), (self.audio_sink_0, 0))
         self.connect((self.blocks_add_xx_1, 0), (self.blocks_rms_xx_0_0, 0))
+        self.connect((self.blocks_add_xx_1, 0), (self.blocks_selector_2, 0))
         self.connect((self.blocks_complex_to_mag_squared_2, 0), (self.single_pole_iir_filter_xx_0, 0))
         self.connect((self.blocks_complex_to_mag_squared_2_0, 0), (self.single_pole_iir_filter_xx_0_0, 0))
         self.connect((self.blocks_complex_to_real_0_0, 0), (self.blocks_multiply_const_vxx_0_0_0, 0))
@@ -229,6 +234,10 @@ class ch2_simulation(gr.top_block):
         self.connect((self.blocks_selector_0_0_0, 0), (self.blocks_multiply_xx_0_0_0_0_1, 1))
         self.connect((self.blocks_selector_0_1, 0), (self.blocks_multiply_xx_0_0_0_1, 1))
         self.connect((self.blocks_selector_1, 0), (self.blocks_float_to_complex_0_0, 0))
+        self.connect((self.blocks_selector_2, 0), (self.audio_sink_0_0, 0))
+        self.connect((self.blocks_selector_2, 1), (self.audio_sink_0_0_0, 0))
+        self.connect((self.blocks_selector_2, 2), (self.audio_sink_0_0_1, 0))
+        self.connect((self.blocks_selector_2, 3), (self.audio_sink_0_0_2, 0))
         self.connect((self.epy_block_0_0_0, 0), (self.low_pass_filter_1_1, 0))
         self.connect((self.epy_block_0_0_0_0, 0), (self.low_pass_filter_1_0_0, 0))
         self.connect((self.low_pass_filter_0_0, 0), (self.blocks_multiply_xx_0_0_1, 0))
@@ -306,6 +315,7 @@ class ch2_simulation(gr.top_block):
 
     def set_out_sel(self, out_sel):
         self.out_sel = out_sel
+        self.blocks_selector_2.set_output_index(self.out_sel)
 
     def get_out_rms_func(self):
         return self.out_rms_func

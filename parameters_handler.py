@@ -90,7 +90,7 @@ class Parameters:
         self.ch1_sim_t.start(self.Nbuf)
         
         self.ch1_flow_graph_is_running = True  # Выставляем флаг, сигнализирующий о том, что поток симуляции канала запущен
-
+        
     def ch2_start_sim(self):
         self.ch2_sim_t.stop()
         self.ch2_sim_t.wait()
@@ -130,3 +130,73 @@ class Parameters:
         self.ch2_sim_t.wait()
         #del self.sim_t
         self.ch2_flow_graph_is_running = False  # Выставляем флаг, сигнализирующий о том, что поток симуляции канала остановлен
+
+class ParametersMulti:
+    '''
+    Отвечает за параметры для потоков симуляции канала
+    Запускает и останавливает потоки симуляции канала
+    '''
+
+    def __init__(self, ch_sim_t): 
+        self.sim_t = ch_sim_t     
+        
+        self.ampl1 = None  # Амплитуда первого луча
+        self.ampl2 = None  # Амплитуда второго луча
+        self.tau = None  # Задержка второго луча относительно первого
+        self.dop_shift = None  # Доплеровский сдвиг частоты
+        self.dop_fd = None  # Доплеровское уширение (рассеивание)
+        self.snr = None  # Отношение сигнал-шум
+        self.rms = None  # Измеряемое в канале среднеквадратическое отклонение
+
+        # self.on_off_out = None  # Наличие сигнала на выходе графа перед входами приёмников
+
+        self.en_silence_noise = 0  # Включает шум на выходе первого канала когда канал выключен для глушения пролазов
+    
+        self.flow_graph_is_running = None  # Показывает, запущен ли поток симуляции первого канала
+        
+        self.samp_rate = 48000
+        self.latency = 50e-3
+        self.tcp_port = 8080
+        
+        self.tcpServer = None    
+
+    def start_sim(self):
+        self.sim_t.stop()
+        self.sim_t.wait()
+        self.Nbuf = int(self.latency*self.samp_rate)
+        self.sim_t.kN = pow(10.0, (-self.snr / 20.0))
+        self.sim_t.set_ampl([[self.ampl1, self.ampl2], [self.ampl1, self.ampl2]])
+        self.sim_t.set_tau(self.tau)
+        self.sim_t.set_freqShift(self.dop_shift)
+        self.sim_t.set_fd(self.dop_fd)
+        self.sim_t.set_snr(self.snr)
+        # self.sim_t.set_vol(self.on_off_out1)
+        # self.sim_t.set_en_noise(self.ch1_en_silence_noise)
+        
+        self.sim_t.start(self.Nbuf)
+        if self.dop_fd == 0:
+            self.sim_t.set_noSpread(1)
+        else:
+            self.sim_t.set_noSpread(0)
+        time.sleep(0.01)
+        self.sim_t.stop()
+        self.sim_t.wait()
+        self.sim_t.start(self.Nbuf)
+        
+        self.flow_graph_is_running = True  # Выставляем флаг, сигнализирующий о том, что поток симуляции канала запущен
+
+    def stop_sim(self):
+        self.sim_t.stop()
+        self.sim_t.wait()
+        #del self.sim_t
+        self.ch1_flow_graph_is_running = False  # Выставляем флаг, сигнализирующий о том, что поток симуляции канала остановлен
+        
+    def set_rx_en(self, idx, en_flag):
+        if idx == 0:
+            self.sim_t.set_rx1_en(en_flag)
+        if idx == 1:
+            self.sim_t.set_rx2_en(en_flag)
+        if idx == 2:
+            self.sim_t.set_rx3_en(en_flag)
+        if idx == 3:    
+            self.sim_t.set_rx4_en(en_flag)

@@ -11,43 +11,31 @@ import select
 import time
 import datetime
 
+import tx1_simulation
+import tx2_simulation
+import tx3_simulation
+import tx4_simulation
+import parameters_handler
+
 class ServerHandler(Thread):
-    def __init__(self, sim_handler1, sim_handler2):
+    def __init__(self):
         super().__init__(daemon = True)
-        self.sim_handler1 = sim_handler1
-        self.sim_handler2 = sim_handler2
+        self.sim_handler1 = parameters_handler.ParametersMulti(tx1_simulation.tx1_simulation())  # Каждый передатчик будет иметь свой флоуграф
+        self.sim_handler2 = parameters_handler.ParametersMulti(tx2_simulation.tx2_simulation())
+        self.sim_handler3 = parameters_handler.ParametersMulti(tx3_simulation.tx3_simulation())
+        self.sim_handler4 = parameters_handler.ParametersMulti(tx4_simulation.tx4_simulation())
+        self.sim_handlers = [self.sim_handler1, self.sim_handler2, self.sim_handler3, self.sim_handler4]  # Лист для быстрого доступа к хэндлерам
         self.host = None
         self.port = None
-        self.channels_csv_filename1 = None
-        self.channels_csv_filename2 = None
+        self.channels_csv_filename = None
         self.teamwork = None
         self.current_modem = None
-        self.current_working_pair1 = [0,0]
-        self.current_working_pair2 = [0,0]
-
-        self.modem_1_RX_ch_num = -1  # Старый номер приемного канала модема подключенного к первому входу звуковой карты
-        self.modem_1_TX_ch_num = -1  # Старый номер передающего канала модема подключенного к первому входу звуковой карты
-        self.modem_2_RX_ch_num = -1  # Старый номер приемного канала модема подключенного ко второму входу звуковой карты
-        self.modem_2_TX_ch_num = -1  # Старый номер передающего канала модема подключенного ко второму входу звуковой карты
-        self.modem_3_RX_ch_num = -1  # Старый номер приемного канала модема подключенного к третьему входу звуковой карты
-        self.modem_3_TX_ch_num = -1  # Старый номер передающего канала модема подключенного к третьему входу звуковой карты
-        self.modem_4_RX_ch_num = -1  # Старый номер приемного канала модема подключенного ко четвёртому входу звуковой карты
-        # self.modem_4_TX_ch_num = -1  # Старый номер передающего канала модема подключенного ко четвёртому входу звуковой карты
         
-        self.new_modem_1_RX_ch_num = None  # Новый номер приемного канала модема подключенного к первому входу звуковой карты
-        self.new_modem_1_TX_ch_num = None  # Новый номер передающего канала модема подключенного к первому входу звуковой карты
-        self.new_modem_2_RX_ch_num = None  # Новый номер приемного канала модема подключенного ко второму входу звуковой карты
-        self.new_modem_2_TX_ch_num = None  # Новый номер передающего канала модема подключенного ко второму входу звуковой карты
-        self.new_modem_3_RX_ch_num = None  # Новый номер приемного канала модема подключенного к третьему входу звуковой карты
-        self.new_modem_3_TX_ch_num = None  # Новый номер передающего канала модема подключенного к третьему входу звуковой карты
-        self.new_modem_4_RX_ch_num = None  # Новый номер приемного канала модема подключенного ко четвёртому входу звуковой карты
-        # self.new_modem_4_TX_ch_num = None  # Новый номер передающего канала модема подключенного ко четвёртому входу звуковой карты
+        self.new_TX_ch = None  # Полученный из сообщения новый передающий канал
+        self.new_RX_ch = None  # Полученный из сообщения новый приёмный канал
 
-        # self.ch1_noise_already_on = False
-        # self.ch2_noise_already_on = False
-        # self.ch3_noise_already_on = False
-        # self.ch4_noise_already_on = False
-        
+        self.current_channels_TX_RX = [[0,0], [0,0], [0,0], [0,0]]  # Лист для хранения полученных номеров каналов модемов
+      
         self.server_is_running = None  
         self.stop_server_flag = None
         
@@ -59,7 +47,7 @@ class ServerHandler(Thread):
         
         self.conn_map = dict()  # Служит для связи создаваемых объектов соединений с файловыми дескрипторами (числами), адресами модемов и каналами на прием и передачу
         
-    def start_sim(self, sim_handler, channel_num, restart_channels, new_commutation = (0,1,1,0)):  
+    def start_sim(self, sim_handler, channel_num):  
         f = open(self.channels_csv_filename1, "r")
         i = 0  # Номер строки в csv файле
         for r in csv.reader(f):
@@ -70,12 +58,12 @@ class ServerHandler(Thread):
         if any(self.ampl_mult):
             print(f"Параметры симуляции:\n a1 - {self.ampl1}, a2 - {self.ampl2}, tau - {self.tau}, dop_shift - {self.dop_shift}, dop_fd - {self.dop_fd}, snr - {self.snr}")
             print("Процесс симуляции запущен...")
-        sim_handler.ch1_restart = restart_channels[0]
-        sim_handler.ch2_restart = restart_channels[1]
+
         if sim_handler.ch1_flow_graph_is_running and restart_channels[0] == True:
             sim_handler.ch1_stop_sim()  # Останавливаем симуляцию для переконфигурирования симулятора
         if sim_handler.ch2_flow_graph_is_running and restart_channels[1] == True:
             sim_handler.ch2_stop_sim()  # Останавливаем симуляцию для переконфигурирования симулятора
+
         sim_handler.ampl1 = self.ampl1  # Амплитуда первого луча
         sim_handler.ampl2 = self.ampl2  # Амплитуда второго луча
         sim_handler.tau = self.tau * 0.001  # Задержка второго луча относительно первого
@@ -114,68 +102,65 @@ class ServerHandler(Thread):
         print("\n")
         if self.teamwork:
             addr_1_cfg, addr_2_cfg, addr_3_cfg, addr_4_cfg = map(int, f.read().split())
-            modem_address = self.data_to_read[0]
-            if modem_address == addr_1_cfg:
-                self.current_modem = 1
-                self.new_modem_1_RX_ch_num = self.data_to_read[2]
-                self.new_modem_1_TX_ch_num = self.data_to_read[1]
-                print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
-                print(f"Сообщение от первого модема: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
-                self.data_to_send = self.data_to_read
-                self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
-            elif modem_address == addr_2_cfg:
-                self.current_modem = 2
-                self.new_modem_2_RX_ch_num = self.data_to_read[2]
-                self.new_modem_2_TX_ch_num = self.data_to_read[1]
-                print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
-                print(f"Сообщение от второго модема: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
-                self.data_to_send = self.data_to_read
-                self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
-            elif modem_address == addr_3_cfg:
-                self.current_modem = 3
-                self.new_modem_3_RX_ch_num = self.data_to_read[2]
-                self.new_modem_3_TX_ch_num = self.data_to_read[1]
-                print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
-                print(f"Сообщение от третьего модема: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
-                self.data_to_send = self.data_to_read
-                self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
-            elif modem_address == addr_4_cfg:
-                self.current_modem = 4
-                self.new_modem_4_RX_ch_num = self.data_to_read[2]
-                # self.new_modem_4_TX_ch_num = self.data_to_read[1]
-                print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
-                print(f"Сообщение от четвёртого модема: адрес - {modem_address}, rx - {self.data_to_read[2]}")
-                self.data_to_send = self.data_to_read
-                self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
-            else:
-                print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
-                print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
-                print(f"Адрес модема: {modem_address} не допустим, ожидание...\n")
-                return 
+            allowed_modem_addresses = [addr_1_cfg, addr_2_cfg, addr_3_cfg, addr_4_cfg]
         else:
             addr_1_cfg, addr_2_cfg = map(int, f.read().split())
-            modem_address = self.data_to_read[0]
-            if modem_address == addr_1_cfg:
-                self.current_modem = 1
-                self.new_modem_1_RX_ch_num = self.data_to_read[2]
-                self.new_modem_1_TX_ch_num = self.data_to_read[1]
-                print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
-                print(f"Сообщение от первого модема: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
-                self.data_to_send = self.data_to_read
-                self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
-            elif modem_address == addr_2_cfg:
-                self.current_modem = 2
-                self.new_modem_2_RX_ch_num = self.data_to_read[2]
-                self.new_modem_2_TX_ch_num = self.data_to_read[1]
-                print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
-                print(f"Сообщение от второго модема: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
-                self.data_to_send = self.data_to_read
-                self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
+            allowed_modem_addresses = [addr_1_cfg, addr_2_cfg]
+        modem_address = self.data_to_read[0]
+        if modem_address in allowed_modem_addresses:
+            self.current_modem = allowed_modem_addresses.index(modem_address)
+            self.new_TX_ch = self.data_to_read[1]
+            self.new_RX_ch = self.data_to_read[2]
+            print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
+            print(f"Сообщение от {modem_address} модема: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
+            self.data_to_send = self.data_to_read
+            self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
+        else:
+            print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
+            print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
+            print(f"Адрес модема: {modem_address} не допустим, ожидание...\n")
+            return 
+
+        if self.current_channels_TX_RX[self.current_modem][0] != self.new_TX_ch:
+            print(f"Выбран новый передающий канал: {self.new_TX_ch}")
+            self.sim_handlers[self.current_modem].set_rx_en(0, 0)
+            self.sim_handlers[self.current_modem].set_rx_en(1, 0)
+            self.sim_handlers[self.current_modem].set_rx_en(2, 0)
+            self.sim_handlers[self.current_modem].set_rx_en(3, 0)
+
+            self.current_channels_TX_RX[self.current_modem][0] = self.new_TX_ch
+            connected_RX_modems = list()
+            for idx, modem_i_TX_RX in enumerate(self.current_channels_TX_RX):
+                if modem_i_TX_RX[1] == self.new_TX_ch and idx!=self.current_modem:
+                    connected_RX_modems.append(allowed_modem_addresses[idx])
+                    self.sim_handlers[self.current_modem].set_rx_en(idx, 1)
+                    print(f"Модем {allowed_modem_addresses[idx]} слышит модем {modem_address}")
+            if connected_RX_modems:
+                self.start_sim(self.new_TX_ch, self.sim_handlers[self.current_modem])
             else:
-                print(f"Получено сообщение от клиента с адресом: {self.conn_map[fileno][1][0]}")
-                print(f"Сообщение: адрес - {modem_address}, tx - {self.data_to_read[1]}, rx - {self.data_to_read[2]}")
-                print(f"Адрес модема: {modem_address} не допустим, ожидание...\n")
-                return 
+                print(f"Никто не слышит модем {modem_address}")
+        else:
+            print(f"Передающий канал {self.new_TX_ch} не изменился, дополнительных действий не требуется")
+            
+        if self.current_channels_TX_RX[self.current_modem][1] != self.new_RX_ch:
+            print(f"Выбран новый приёмный канал: {self.new_TX_ch}")
+            for idx, modem_i_TX_RX in enumerate(self.current_channels_TX_RX):
+                if modem_i_TX_RX[0] == self.current_channels_TX_RX[self.current_modem][1]:
+                    self.sim_handlers[idx].set_rx_en(self.current_modem, 0)
+
+            self.current_channels_TX_RX[self.current_modem][1] = self.new_RX_ch
+            connected_RX_modems = list()
+            for idx, modem_i_TX_RX in enumerate(self.current_channels_TX_RX):
+                if modem_i_TX_RX[0] == self.current_channels_TX_RX[self.current_modem][1]:
+                    connected_RX_modems.append(allowed_modem_addresses[idx])
+                    self.sim_handlers[idx].set_rx_en(self.current_modem, 1)
+                    if not self.sim_handlers[idx].flow_graph_is_running:
+                        self.start_sim(self.new_RX_ch, self.sim_handlers[idx]) 
+                    print(f"Модем {modem_address} слышит модем {allowed_modem_addresses[idx]}")
+            if not connected_RX_modems:
+                print(f"Модем {modem_address} никого не слышит")
+        else:
+            print(f"Приёмный канал {self.new_RX_ch} не изменился, дополнительных действий не требуется")
 
         if self.teamwork:
             if None in [self.new_modem_1_TX_ch_num, self.new_modem_1_RX_ch_num, \
@@ -1401,6 +1386,15 @@ class ServerHandler(Thread):
                 return
 
             if self.new_modem_1_TX_ch_num == self.new_modem_2_RX_ch_num ==\
+            self.modem_1_TX_ch_num == self.modem_2_RX_ch_num:
+                print(f"Выбранный канал: {channel_number} совпадает с действующим, дополнительных действий не требуется")
+                print(f"Второй модем слышит первый")
+                print(f"Комбинация номеров каналов: tx1 - {self.new_modem_1_TX_ch_num}, rx2 - {self.new_modem_2_RX_ch_num}")
+                print("Процесс симуляции продолжается со старыми значениями параметров канала!")
+            
+
+
+            if self.new_modem_1_TX_ch_num == self.new_modem_2_RX_ch_num ==\
             self.new_modem_2_TX_ch_num == self.new_modem_1_RX_ch_num ==\
             self.modem_1_TX_ch_num == self.modem_2_RX_ch_num ==\
             self.modem_2_TX_ch_num == self.modem_1_RX_ch_num:
@@ -1429,15 +1423,13 @@ class ServerHandler(Thread):
                 self.modem_2_TX_ch_num = self.new_modem_2_TX_ch_num
 
                 channel_number = self.modem_2_TX_ch_num
+                new_rx_comm = 0
                 print("Оба слышат друг друга - симметричный канал")
                 print(f"Выбранный новый второй канал: {channel_number}, первый канал совпадает с действующим")
                 print(f"Комбинация номеров каналов: tx1 - {self.new_modem_1_TX_ch_num}, rx1 - {self.new_modem_1_RX_ch_num}, tx2 - {self.new_modem_2_TX_ch_num}, rx2 - {self.new_modem_2_RX_ch_num}")
                 print("Запускаем второй канал с новыми параметрами, первый канал продолжает выполнение с действующими")
-                self.ampl_mult = [1, 1]
-                # self.en_noise = [0, 0]
-                restart_channels = (0,1)
-                self.start_sim(self.sim_handler1, channel_number, restart_channels)
-                # self.ch2_noise_already_on = False
+                
+                self.start_sim(self.sim_handler2, channel_number, new_rx_comm)
                 self.t1 = datetime.datetime.now()
                 self.data_to_send = self.data_to_read
                 self.epoll.modify(fileno, select.EPOLLOUT | select.EPOLLONESHOT)
@@ -1719,11 +1711,11 @@ class ServerHandler(Thread):
                 time.sleep(0.01)  # Задержка, облегчающая работу процессору, не удалять!!!
         except SystemExit:
             if self.server_is_running:
-                self.sim_handler1.ch1_stop_sim()
-                self.sim_handler1.ch2_stop_sim()
+                self.sim_handler1.stop_sim()
+                self.sim_handler2.stop_sim()
                 if self.teamwork:
-                    self.sim_handler2.ch1_stop_sim()
-                    self.sim_handler2.ch2_stop_sim()
+                    self.sim_handler3.stop_sim()
+                    self.sim_handler4.stop_sim()
                 self.epoll.unregister(serversocket.fileno())
                 self.epoll.close()
                 serversocket.close()
@@ -1739,4 +1731,5 @@ class ServerHandler(Thread):
                 self.epoll.close()
                 serversocket.close()
                 self.server_is_running = False
+                
                 
