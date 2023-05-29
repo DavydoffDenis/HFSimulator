@@ -3,7 +3,7 @@ from PyQt5.QtCore import QByteArray
 import sys
 import time
 
-address = 8
+address = 12
 
 transmission_channel_number = 1
 reception_channel_number = 2
