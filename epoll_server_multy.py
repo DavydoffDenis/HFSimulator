@@ -102,7 +102,7 @@ class ServerHandler(Thread):
             self.current_channels_TX_RX[self.current_modem][0] = self.new_TX_ch
             connected_RX_modems = list()
             for idx, modem_i_TX_RX in enumerate(self.current_channels_TX_RX):
-                if modem_i_TX_RX[1] == self.new_TX_ch and idx!=self.current_modem:
+                if modem_i_TX_RX[1] == self.new_TX_ch:
                     connected_RX_modems.append(allowed_modem_addresses[idx])
                     self.sim_handlers[self.current_modem].set_rx_en(idx, 1)
                     print(f"Модем {allowed_modem_addresses[idx]} слышит модем {modem_address}")
@@ -122,7 +122,7 @@ class ServerHandler(Thread):
             self.current_channels_TX_RX[self.current_modem][1] = self.new_RX_ch
             connected_RX_modems = list()
             for idx, modem_i_TX_RX in enumerate(self.current_channels_TX_RX):
-                if modem_i_TX_RX[0] == self.current_channels_TX_RX[self.current_modem][1] and idx!=self.current_modem:
+                if modem_i_TX_RX[0] == self.current_channels_TX_RX[self.current_modem][1]:
                     connected_RX_modems.append(allowed_modem_addresses[idx])
                     self.sim_handlers[idx].set_rx_en(self.current_modem, 1)
                     if not self.sim_handlers[idx].flow_graph_is_running:
