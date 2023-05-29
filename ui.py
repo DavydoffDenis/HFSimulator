@@ -987,10 +987,10 @@ class UserInterface(QMainWindow):
         self.adapt_mode.port = self.int_serv_port.value()
         self.adapt_mode.channels_csv_filename = self.channels_csv_filename
 
-        # if self.teamwork:
-        #     with open("address.cfg", "a") as address_file:
-        #         address_file.write(f" {self.int3_m_addr.value()} {self.int4_m_addr.value()}")
-        #     self.adapt_mode.channels_csv_filename2 = self.channels_csv_filename2
+        if self.teamwork:
+            with open("address.cfg", "a") as address_file:
+                address_file.write(f" {self.int3_m_addr.value()} {self.int4_m_addr.value()}")
+            self.adapt_mode.channels_csv_filename = self.channels_csv_filename2
         
     def check_if_csv_file_with_channels_exists(self, channels_csv_filename):
         try: 
